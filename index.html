@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ✏️ ÉTAPE 4 : remplacez le titre et la description par les vôtres -->
+<title>Prénom Nom · Métier</title>
+<meta name="description" content="Une phrase : qui vous êtes, ce que vous faites, où.">
+<link rel="alternate" type="text/markdown" href="moi.md" title="Version Markdown de cette page">
+
+<!-- ✏️ ÉTAPE 3 : collez ici le bloc JSON-LD écrit avec Gemini (remplacez tout le bloc ci-dessous) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": "https://IDENTIFIANT.github.io/#moi",
+  "name": "Prénom Nom",
+  "jobTitle": "Votre métier",
+  "url": "https://IDENTIFIANT.github.io/",
+  "sameAs": [
+    "https://www.linkedin.com/in/votre-profil"
+  ]
+}
+</script>
+<!-- fin du bloc JSON-LD -->
+
+<style>
+  :root { --ink:#18181b; --ink2:#3f3f46; --ink3:#71717a; --paper:#f7f4f1; --card:#ffffff; --line:#e6ded7; --accent:#4f46e5; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:17px/1.6 system-ui, -apple-system, "Segoe UI", Inter, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 56px 20px 80px; }
+  header { display:flex; gap:20px; align-items:center; margin-bottom:28px; }
+  .avatar { width:84px; height:84px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font-size:34px; font-weight:800; flex:none; }
+  h1 { font-size: 2rem; line-height:1.15; margin:0 0 6px; }
+  .lead { font-size:1.15rem; color:var(--ink2); margin:0; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin:18px 0; }
+  h2 { font-size:1.05rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:0 0 10px; }
+  ul { padding-left: 1.2em; margin: 0; }
+  a { color: var(--accent); }
+  footer { color:var(--ink3); font-size:.85rem; margin-top:36px; }
+</style>
+</head>
+<body>
+<main>
+<!-- ✏️ ÉTAPE 4 : remplacez TOUT ce qui est entre « DÉBUT DU TEXTE » et « FIN DU TEXTE » par le HTML écrit avec Gemini -->
+<!-- DÉBUT DU TEXTE -->
+<header>
+  <div class="avatar" aria-hidden="true">P</div>
+  <div>
+    <h1>Prénom Nom</h1>
+    <p class="lead">Votre phrase d'identité : qui vous êtes, ce que vous faites, où.</p>
+  </div>
+</header>
+
+<section>
+  <h2>En bref</h2>
+  <ul>
+    <li>Métier : …</li>
+    <li>Employeur ou projet : …</li>
+    <li>Ville : …</li>
+    <li>Spécialités : …</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Ce que je fais</h2>
+  <p>…</p>
+</section>
+
+<section>
+  <h2>Parcours</h2>
+  <p>…</p>
+</section>
+
+<section>
+  <h2>Me retrouver ailleurs</h2>
+  <ul>
+    <li><a href="https://www.linkedin.com/in/votre-profil">LinkedIn</a></li>
+  </ul>
+</section>
+<!-- FIN DU TEXTE -->
+
+<footer>
+  Version texte de cette page : <a href="moi.md">moi.md</a> · <a href="llms.txt">llms.txt</a><br>
+  Page d'entité réalisée pendant le module SEO &amp; GEO du MBA MDIA (De Vinci Executive Education), novembre 2026.
+</footer>
+</main>
+</body>
+</html>

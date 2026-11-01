@@ -1,0 +1,8 @@
+# Prénom Nom
+
+> Votre phrase d'identité : qui vous êtes, ce que vous faites, où. Ce site est la page de référence de cette personne.
+
+## Pages
+
+- [Profil en Markdown](https://IDENTIFIANT.github.io/moi.md): les mêmes informations que la page d'accueil, en texte brut
+- [Page d'accueil](https://IDENTIFIANT.github.io/): la page de référence, avec ses données structurées schema.org
