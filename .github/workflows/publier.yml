@@ -71,7 +71,8 @@ jobs:
             "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages" || echo 000)
           mode=$(python3 -c "import json; print(json.load(open('pages.json')).get('build_type', ''))" 2>/dev/null || true)
           echo "Réponse de GitHub : $code, mode de publication : ${mode:-aucun}"
-          if [ "$code" = "200" ] && [ "$mode" = "workflow" ]; then
+          # On ne bloque que si Pages est explicitement en mode « branche » (legacy).
+          if [ "$code" = "200" ] && [ "$mode" != "legacy" ]; then
             echo "publier=true" >> "$GITHUB_OUTPUT"
             echo "GitHub Pages est bien réglé sur « GitHub Actions » : on publie."
             exit 0
