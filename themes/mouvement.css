@@ -1,0 +1,44 @@
+/* ------------------------------------------------------------------
+   mouvement.css : une seule séquence d'apparition, au chargement.
+   Le monogramme se pose, le nom monte, le trait d'accent se trace,
+   puis la phrase et le reste arrivent. Environ une seconde en tout.
+
+   - Inséré seulement si "animations": true dans fiche.json.
+   - Tout est dans @media (prefers-reduced-motion: no-preference) :
+     si la personne a demandé moins de mouvement à son système,
+     rien ne bouge.
+   - Le contenu ne dépend jamais de l'animation : sans elle (robot,
+     vieux navigateur, impression), la page est complète et visible.
+   ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* « backwards » : l'élément attend son tour dans l'état de départ,
+     puis retrouve son style normal à la fin. Rien ne reste figé. */
+  .monogramme { animation: m-pose .55s cubic-bezier(.2, .8, .2, 1) backwards; }
+  .nom-texte  { animation: m-monte .8s cubic-bezier(.16, .84, .24, 1) .08s backwards; }
+  .trait      { animation: m-trace .75s cubic-bezier(.65, 0, .25, 1) .42s backwards; }
+  .phrase     { animation: m-arrive .6s cubic-bezier(.2, .7, .2, 1) .6s backwards; }
+  .corps,
+  .pied       { animation: m-arrive .7s cubic-bezier(.2, .7, .2, 1) .78s backwards; }
+
+  /* Mouvements qui répondent à un geste : le lien s'épaissit au survol. */
+  a { transition: text-decoration-thickness .18s ease-out, color .18s ease-out; }
+
+  @keyframes m-pose {
+    from { opacity: 0; transform: scale(.72) rotate(-6deg); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes m-monte {
+    from { opacity: 0; transform: translateY(.38em); clip-path: inset(100% -.2em -.4em -.2em); }
+    to   { opacity: 1; transform: none; clip-path: inset(-.3em -.2em -.4em -.2em); }
+  }
+  @keyframes m-trace {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  @keyframes m-arrive {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+}

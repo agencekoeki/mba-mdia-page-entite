@@ -1,0 +1,122 @@
+# ---------------------------------------------------------------------------
+# Publier ma page
+#
+# À chaque modification de fiche.json (ou des outils, ou des thèmes) sur la
+# branche main, GitHub :
+#   1. construit la page depuis fiche.json (outils/construire.py) ;
+#   2. vérifie que le code dit vrai (outils/verifier.py) ;
+#   3. publie le résultat sur GitHub Pages.
+#
+# Si la fiche est invalide, le travail s'arrête à l'étape 1 avec un message
+# en français qui dit quoi corriger et où. L'ancienne page reste en ligne.
+#
+# Réglage nécessaire, une seule fois : Settings > Pages > Source : GitHub Actions.
+# Pour relancer à la main : onglet Actions > Publier ma page > Run workflow.
+# ---------------------------------------------------------------------------
+
+name: Publier ma page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "fiche.json"
+      - "outils/**"
+      - "themes/**"
+      - ".github/workflows/publier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois ; celle en cours va jusqu'au bout.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    name: Construire et vérifier la page
+    runs-on: ubuntu-latest
+    outputs:
+      publier: ${{ steps.reglage.outputs.publier }}
+    steps:
+      - name: Récupérer les fichiers du dépôt
+        uses: actions/checkout@v7
+
+      - name: Construire la page depuis fiche.json
+        run: python3 outils/construire.py
+
+      - name: Vérifier que le code dit vrai
+        run: python3 outils/verifier.py
+
+      - name: Vérifier le réglage de GitHub Pages
+        id: reglage
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOUVELLE_BRANCHE: ${{ github.event_name == 'push' && github.event.created }}
+          DEPOT_MODELE: ${{ github.repository == 'agencekoeki/mba-mdia-page-entite' }}
+        run: |
+          if [ "$DEPOT_MODELE" = "true" ]; then
+            # Le dépôt modèle lui-même : on construit et on vérifie (c'est un test), on ne publie pas.
+            echo "publier=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Dépôt modèle::Page construite et vérifiée. Le modèle ne se publie pas : c'est votre copie qui le fera."
+            exit 0
+          fi
+          code=$(curl -sS -o pages.json -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pages" || echo 000)
+          mode=$(python3 -c "import json; print(json.load(open('pages.json')).get('build_type', ''))" 2>/dev/null || true)
+          echo "Réponse de GitHub : $code, mode de publication : ${mode:-aucun}"
+          if [ "$code" = "200" ] && [ "$mode" = "workflow" ]; then
+            echo "publier=true" >> "$GITHUB_OUTPUT"
+            echo "GitHub Pages est bien réglé sur « GitHub Actions » : on publie."
+            exit 0
+          fi
+          echo "publier=false" >> "$GITHUB_OUTPUT"
+          if [ "$code" = "200" ]; then
+            explication="GitHub Pages est réglé sur « Deploy from a branch ». Passez-le sur « GitHub Actions » : Settings > Pages > Build and deployment > Source : GitHub Actions. Puis relancez : onglet Actions > Publier ma page > Run workflow."
+          else
+            explication="GitHub Pages n'est pas encore activé. Allez dans Settings > Pages > Build and deployment > Source, et choisissez « GitHub Actions » (n'acceptez aucun des modèles proposés). Puis relancez : onglet Actions > Publier ma page > Run workflow."
+          fi
+          if [ "$NOUVELLE_BRANCHE" = "true" ]; then
+            # Premier envoi, juste après « Use this template » : Pages ne peut pas encore être réglé.
+            echo "::notice title=Page construite, pas encore publiée::Normal juste après la création du dépôt. $explication"
+            printf '## Page construite, pas encore publiée\n\nNormal juste après la création du dépôt.\n\n%s\n' "$explication" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "::error title=Réglage de GitHub Pages à faire::$explication"
+          printf '## Réglage de GitHub Pages à faire\n\n%s\n' "$explication" >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Préparer GitHub Pages
+        if: steps.reglage.outputs.publier == 'true'
+        uses: actions/configure-pages@v6
+
+      - name: Emballer la page
+        if: steps.reglage.outputs.publier == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+          include-hidden-files: true
+
+  publier:
+    name: Publier sur GitHub Pages
+    needs: construire
+    if: needs.construire.outputs.publier == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Mettre la page en ligne
+        id: deploiement
+        uses: actions/deploy-pages@v5
+
+      - name: Dire où est la page
+        run: |
+          echo "::notice title=Votre page est en ligne::${{ steps.deploiement.outputs.page_url }} (si vous voyez l'ancienne version, attendez une minute et rechargez)"
+          printf '## Votre page est en ligne\n\n%s\n\nSi vous voyez encore l'"'"'ancienne version, attendez une minute et rechargez la page.\n' "${{ steps.deploiement.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"

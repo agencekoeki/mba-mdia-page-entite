@@ -1,0 +1,51 @@
+/* ------------------------------------------------------------------
+   Thème « sombre » : fond bleu nuit, caractère plus expressif.
+   Le nom est en Bricolage Grotesque, le texte en Instrument Sans.
+   Sur ce fond, une couleur d'accent foncée est éclaircie
+   automatiquement par construire.py pour rester lisible.
+   Polices : Bricolage Grotesque et Instrument Sans (SIL OFL).
+   ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("polices/bricolage-grotesque.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("polices/instrument-sans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  --fond: #0E131C;
+  --encre: #E8ECF2;
+  --encre-2: #B4BDCC;
+  --encre-3: #8D98AB;
+  --ligne: #253042;
+  --ligne-forte: #3A475C;
+  --bandeau-fond: #3A2E10;
+  --bandeau-encre: #F7DFA0;
+
+  --police-texte: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --police-titre: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+
+  --graisse-titre: 760;
+  --approche-nom: -.035em;
+  --taille-nom: clamp(2.7rem, 1.3rem + 6vw, 5.2rem);
+  --graisse-h2: 680;
+  --rayon-monogramme: 50%;
+  --largeur: 46rem;
+}
+
+/* Sur fond sombre, le texte clair paraît plus gras : on l'allège un peu. */
+body { font-weight: 420; }
+.fiche dd, .domaines li, .profils a { font-weight: 560; }

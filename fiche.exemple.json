@@ -1,0 +1,31 @@
+{
+  "_aide": "EXEMPLE FICTIF : Marie Exemple, Lumen et La Fournée n'existent pas. Chaque champ est expliqué dans fiche.md.",
+  "type": "Person",
+  "nom": "Marie Exemple",
+  "phrase_identite": "Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.",
+  "metier": "Chargée de marketing digital",
+  "employeur": {
+    "nom": "Lumen",
+    "url": "https://lumen.example/",
+    "description": "éditeur de logiciels pour boulangeries"
+  },
+  "ville": "Lyon",
+  "domaines": ["Marketing digital", "SEO", "Emailing", "Marketing des artisans"],
+  "ce_que_je_fais": "Chez Lumen, je prépare les campagnes d'emailing et les pages du site qui présentent nos logiciels aux boulangers. Je mesure ce qui fait venir de nouveaux clients, et je réécris ce qui ne marche pas.",
+  "parcours": "Après une licence de communication, je suis le MBA Marketing Digital et Intelligence Artificielle de De Vinci Executive Education, en alternance chez Lumen.",
+  "profils": [
+    { "nom": "LinkedIn", "url": "https://www.linkedin.com/in/marie-exemple-fictive" }
+  ],
+  "entite_liee": {
+    "type": "CreativeWork",
+    "nom": "La Fournée",
+    "description": "une lettre mensuelle sur le marketing des artisans boulangers",
+    "relation": "autrice",
+    "titre_section": "Ma lettre"
+  },
+  "theme": "editorial",
+  "couleur_accent": "#8E2B6E",
+  "animations": true,
+  "identifiant_github": "marie-exemple-fictive",
+  "fictif": true
+}

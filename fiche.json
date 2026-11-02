@@ -1,0 +1,22 @@
+{
+  "_aide": "Votre fiche d'identité : la seule source de votre page. Remplacez chaque valeur (à droite des deux-points) par la vôtre, ou collez ici la fiche écrite par le Gem « Ma fiche d'entité ». Aide champ par champ : fiche.md. Exemple complet : fiche.exemple.json.",
+  "type": "Person",
+  "nom": "Prénom Nom",
+  "phrase_identite": "Prénom Nom est [votre métier] chez [votre employeur], à [votre ville].",
+  "metier": "[Votre métier]",
+  "employeur": {
+    "nom": "[Votre employeur ou votre projet]",
+    "url": ""
+  },
+  "ville": "[Votre ville]",
+  "domaines": ["[Domaine 1]", "[Domaine 2]", "[Domaine 3]"],
+  "ce_que_je_fais": "[Deux ou trois phrases : ce que vous faites, pour qui, avec quoi.]",
+  "parcours": "[Une ou deux phrases : d'où vous venez, ce que vous préparez.]",
+  "profils": [
+    { "nom": "LinkedIn", "url": "https://www.linkedin.com/in/votre-profil" }
+  ],
+  "theme": "clair",
+  "couleur_accent": "#2952CC",
+  "animations": true,
+  "identifiant_github": "IDENTIFIANT"
+}

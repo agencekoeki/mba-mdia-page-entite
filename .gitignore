@@ -1,0 +1,4 @@
+# Le site construit par outils/construire.py (GitHub Actions le reconstruit à chaque fois)
+_site/
+__pycache__/
+*.pyc

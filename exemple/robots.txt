@@ -1,0 +1,7 @@
+# robots.txt : qui peut lire ce site.
+# Tout le monde, y compris les robots des moteurs et des IA :
+# une page d'entité est faite pour être lue.
+User-agent: *
+Allow: /
+
+Sitemap: https://agencekoeki.github.io/mba-mdia-page-entite/exemple/sitemap.xml

@@ -3,91 +3,468 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Marie Exemple · Chargée de marketing (exemple fictif)</title>
-<meta name="description" content="Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon. Personne et entreprise fictives.">
-<link rel="alternate" type="text/markdown" href="moi.md" title="Version Markdown de cette page">
+<title>Marie Exemple – Chargée de marketing digital</title>
+<meta name="description" content="Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://agencekoeki.github.io/mba-mdia-page-entite/exemple/">
+<link rel="alternate" type="text/markdown" href="moi.md" title="Cette page en Markdown">
+<link rel="describedby" href="llms.txt" title="Sommaire pour les robots IA">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Marie Exemple">
+<meta property="og:description" content="Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.">
+<meta property="og:url" content="https://agencekoeki.github.io/mba-mdia-page-entite/exemple/">
+<meta property="og:locale" content="fr_FR">
+<meta name="generator" content="Mallette page d'entité (outils/construire.py)">
+<link rel="preload" href="polices/newsreader.woff2" as="font" type="font/woff2" crossorigin>
 
+<!-- La fiche d'identité pour les machines (schema.org, au format JSON-LD).
+     Générée depuis fiche.json : chaque valeur ci-dessous est aussi écrite sur la page.
+     Pour la changer, modifiez fiche.json, pas ce fichier. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "@id": "https://IDENTIFIANT.github.io/exemple/#moi",
-  "name": "Marie Exemple",
-  "jobTitle": "Chargée de marketing digital",
-  "url": "https://IDENTIFIANT.github.io/exemple/",
-  "description": "Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.",
-  "worksFor": {
-    "@type": "Organization",
-    "name": "Lumen",
-    "url": "https://lumen.example/"
-  },
-  "workLocation": { "@type": "Place", "name": "Lyon" },
-  "knowsAbout": ["Marketing digital", "SEO", "Emailing"],
-  "sameAs": ["https://www.linkedin.com/in/marie-exemple"]
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://agencekoeki.github.io/mba-mdia-page-entite/exemple/#moi",
+      "url": "https://agencekoeki.github.io/mba-mdia-page-entite/exemple/",
+      "name": "Marie Exemple",
+      "description": "Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.",
+      "jobTitle": "Chargée de marketing digital",
+      "worksFor": {
+        "@type": "Organization",
+        "@id": "https://agencekoeki.github.io/mba-mdia-page-entite/exemple/#employeur",
+        "name": "Lumen",
+        "url": "https://lumen.example/",
+        "description": "éditeur de logiciels pour boulangeries"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Lyon"
+      },
+      "knowsAbout": [
+        "Marketing digital",
+        "SEO",
+        "Emailing",
+        "Marketing des artisans"
+      ],
+      "sameAs": [
+        "https://www.linkedin.com/in/marie-exemple-fictive"
+      ]
+    },
+    {
+      "@type": "CreativeWork",
+      "@id": "https://agencekoeki.github.io/mba-mdia-page-entite/exemple/#projet",
+      "name": "La Fournée",
+      "description": "une lettre mensuelle sur le marketing des artisans boulangers",
+      "author": {
+        "@id": "https://agencekoeki.github.io/mba-mdia-page-entite/exemple/#moi"
+      }
+    }
+  ]
 }
 </script>
-<!-- fin du bloc JSON-LD -->
 
 <style>
-  :root { --ink:#18181b; --ink2:#3f3f46; --ink3:#71717a; --paper:#f7f4f1; --card:#ffffff; --line:#e6ded7; --accent:#4f46e5; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--paper); color:var(--ink); font:17px/1.6 system-ui, -apple-system, "Segoe UI", Inter, sans-serif; }
-  main { max-width: 760px; margin: 0 auto; padding: 56px 20px 80px; }
-  header { display:flex; gap:20px; align-items:center; margin-bottom:28px; }
-  .avatar { width:84px; height:84px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font-size:34px; font-weight:800; flex:none; }
-  h1 { font-size: 2rem; line-height:1.15; margin:0 0 6px; }
-  .lead { font-size:1.15rem; color:var(--ink2); margin:0; }
-  section { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin:18px 0; }
-  h2 { font-size:1.05rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:0 0 10px; }
-  ul { padding-left: 1.2em; margin: 0; }
-  a { color: var(--accent); }
-  footer { color:var(--ink3); font-size:.85rem; margin-top:36px; }
+/* Thème « editorial », couleur d'accent #8E2B6E. Généré par outils/construire.py. */
+
+/* ------------------------------------------------------------------
+   base.css : la structure commune aux trois thèmes.
+   Les couleurs et les polices viennent du thème choisi (clair.css,
+   sombre.css ou editorial.css) ; la couleur d'accent vient de
+   fiche.json. Ce fichier est inséré dans la page par construire.py.
+   ------------------------------------------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: var(--police-texte);
+  font-size: var(--taille-texte, 1.125rem);
+  line-height: var(--interligne, 1.6);
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent-texte);
+  text-decoration-line: underline;
+  text-decoration-thickness: .07em;
+  text-underline-offset: .2em;
+}
+a:hover { text-decoration-thickness: .14em; }
+
+:focus-visible {
+  outline: 3px solid var(--accent-texte);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Bandeau « exemple fictif » (seulement si fiche.json contient "fictif": true) */
+.bandeau {
+  margin: 0;
+  max-width: none;
+  padding: .7rem 1.25rem;
+  background: var(--bandeau-fond);
+  color: var(--bandeau-encre);
+  font-size: .95rem;
+  line-height: 1.45;
+  text-align: center;
+}
+.bandeau strong { font-weight: 700; }
+
+/* ---------- La page ---------- */
+.page {
+  width: 100%;
+  max-width: var(--largeur, 46rem);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 7vw, 5.5rem) 1.25rem 2rem;
+}
+
+/* ---------- L'en-tête : qui je suis ---------- */
+.entete { margin: 0 0 3rem; }
+
+.monogramme {
+  display: inline-grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--rayon-monogramme, 12px);
+  background: var(--accent);
+  color: var(--sur-accent);
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: .02em;
+}
+
+.nom {
+  margin: 1.5rem 0 0;
+  font-family: var(--police-titre);
+  font-weight: var(--graisse-titre, 700);
+  font-stretch: var(--chasse-titre, 100%);
+  font-size: var(--taille-nom, clamp(2.6rem, 1.3rem + 5.6vw, 5rem));
+  line-height: 1;
+  letter-spacing: var(--approche-nom, -.025em);
+  text-wrap: balance;
+}
+.nom-texte { display: inline-block; }
+
+.trait {
+  display: block;
+  width: var(--largeur-trait, 4.5rem);
+  height: var(--epaisseur-trait, .32rem);
+  margin: 1.4rem 0 1.4rem;
+  background: var(--accent);
+  border-radius: 1px;
+  transform-origin: left center;
+}
+
+.phrase {
+  margin: 0;
+  max-width: 34em;
+  font-size: var(--taille-phrase, clamp(1.2rem, 1.02rem + .8vw, 1.5rem));
+  line-height: 1.42;
+  color: var(--encre-2);
+  text-wrap: pretty;
+}
+
+/* ---------- Les sections ---------- */
+.corps > section + section { margin-top: 2.75rem; }
+
+h2 {
+  margin: 0 0 .8rem;
+  font-family: var(--police-titre);
+  font-weight: var(--graisse-h2, 650);
+  font-size: var(--taille-h2, 1.3rem);
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+
+p { margin: 0 0 .9em; max-width: 38em; }
+p:last-child { margin-bottom: 0; }
+
+/* La fiche : les faits, ligne par ligne. Ce sont exactement les faits du JSON-LD. */
+.fiche dl { margin: 0; }
+.fiche .ligne {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: .85rem 0;
+  border-top: 1px solid var(--ligne);
+}
+.fiche .ligne:last-child { border-bottom: 1px solid var(--ligne); }
+.fiche dt {
+  color: var(--encre-3);
+  font-size: .95rem;
+  line-height: 1.6;
+  padding-top: .1rem;
+}
+.fiche dd { margin: 0; font-weight: 500; }
+
+.domaines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+.domaines li {
+  padding: .12em .7em;
+  border: 1px solid var(--ligne-forte);
+  border-radius: 999px;
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.relation { font-weight: 600; }
+
+/* Les profils ailleurs */
+.profils {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.profils li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .15rem 1rem;
+  padding: .7rem 0;
+  border-top: 1px solid var(--ligne);
+}
+.profils li:last-child { border-bottom: 1px solid var(--ligne); }
+.profils a { font-weight: 600; }
+.profils .adresse {
+  color: var(--encre-3);
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Le pied de page : la page pour les machines ---------- */
+.pied {
+  width: 100%;
+  max-width: var(--largeur, 46rem);
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3.5rem;
+  color: var(--encre-3);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+.pied p { margin: 0 0 .5em; max-width: none; }
+.pied a { overflow-wrap: anywhere; }
+.pied .credit { margin-top: 1rem; }
+
+/* ---------- Petits écrans ---------- */
+@media (max-width: 34rem) {
+  .fiche .ligne { grid-template-columns: 1fr; gap: .1rem; }
+  .profils li { flex-direction: column; }
+}
+
+/* ---------- Impression ---------- */
+@media print {
+  body { background: #fff; color: #000; }
+  .bandeau { border: 1px solid #999; }
+  a { color: #000; }
+  .page, .pied { max-width: none; padding: 1rem 0; }
+}
+
+/* ------------------------------------------------------------------
+   Thème « editorial » : une page qui se lit comme un portrait de
+   magazine. Le nom et le texte sont en Newsreader (un caractère à
+   empattements fait pour l'écran) ; les étiquettes et le pied de
+   page en Instrument Sans, pour bien séparer les faits du récit.
+   Polices : Newsreader et Instrument Sans (SIL OFL).
+   ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("polices/newsreader.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("polices/newsreader-italique.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("polices/instrument-sans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  --fond: #FDFDFB;
+  --encre: #1A1A18;
+  --encre-2: #3A3A36;
+  --encre-3: #64635D;
+  --ligne: #E3E2DC;
+  --ligne-forte: #CFCDC5;
+  --bandeau-fond: #FBEFD0;
+  --bandeau-encre: #5C3D00;
+
+  --police-texte: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --police-titre: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --police-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --taille-texte: 1.1875rem;
+  --interligne: 1.66;
+  --graisse-titre: 430;
+  --approche-nom: -.025em;
+  --taille-nom: clamp(3rem, 1.5rem + 6.6vw, 6rem);
+  --taille-phrase: clamp(1.3rem, 1.1rem + .9vw, 1.65rem);
+  --graisse-h2: 500;
+  --taille-h2: 1.5rem;
+  --largeur-trait: 7rem;
+  --epaisseur-trait: 2px;
+  --rayon-monogramme: 50%;
+  --largeur: 42rem;
+}
+
+.nom { line-height: .98; }
+.phrase { font-style: italic; color: var(--encre-2); }
+h2 { font-style: italic; letter-spacing: 0; }
+
+.monogramme { font-family: var(--police-titre); font-weight: 500; font-size: 1.25rem; }
+
+.fiche dt,
+.domaines li,
+.profils .adresse,
+.pied,
+.bandeau {
+  font-family: var(--police-ui);
+}
+.fiche dt { font-size: .9rem; padding-top: .3rem; }
+.domaines li { font-size: .88rem; }
+.fiche dd { font-weight: 500; }
+.profils a { font-weight: 560; }
+
+/* ------------------------------------------------------------------
+   mouvement.css : une seule séquence d'apparition, au chargement.
+   Le monogramme se pose, le nom monte, le trait d'accent se trace,
+   puis la phrase et le reste arrivent. Environ une seconde en tout.
+
+   - Inséré seulement si "animations": true dans fiche.json.
+   - Tout est dans @media (prefers-reduced-motion: no-preference) :
+     si la personne a demandé moins de mouvement à son système,
+     rien ne bouge.
+   - Le contenu ne dépend jamais de l'animation : sans elle (robot,
+     vieux navigateur, impression), la page est complète et visible.
+   ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* « backwards » : l'élément attend son tour dans l'état de départ,
+     puis retrouve son style normal à la fin. Rien ne reste figé. */
+  .monogramme { animation: m-pose .55s cubic-bezier(.2, .8, .2, 1) backwards; }
+  .nom-texte  { animation: m-monte .8s cubic-bezier(.16, .84, .24, 1) .08s backwards; }
+  .trait      { animation: m-trace .75s cubic-bezier(.65, 0, .25, 1) .42s backwards; }
+  .phrase     { animation: m-arrive .6s cubic-bezier(.2, .7, .2, 1) .6s backwards; }
+  .corps,
+  .pied       { animation: m-arrive .7s cubic-bezier(.2, .7, .2, 1) .78s backwards; }
+
+  /* Mouvements qui répondent à un geste : le lien s'épaissit au survol. */
+  a { transition: text-decoration-thickness .18s ease-out, color .18s ease-out; }
+
+  @keyframes m-pose {
+    from { opacity: 0; transform: scale(.72) rotate(-6deg); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes m-monte {
+    from { opacity: 0; transform: translateY(.38em); clip-path: inset(100% -.2em -.4em -.2em); }
+    to   { opacity: 1; transform: none; clip-path: inset(-.3em -.2em -.4em -.2em); }
+  }
+  @keyframes m-trace {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  @keyframes m-arrive {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* La couleur d'accent de fiche.json (ajustée si besoin pour rester lisible). */
+:root {
+  --accent: #8E2B6E;
+  --accent-texte: #8E2B6E;
+  --sur-accent: #FFFFFF;
+}
 </style>
 </head>
 <body>
-<main>
-<!-- DÉBUT DU TEXTE -->
-<header>
-  <div class="avatar" aria-hidden="true">M</div>
-  <div>
-    <h1>Marie Exemple</h1>
-    <p class="lead">Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.</p>
+<p class="bandeau" role="note"><strong>Exemple fictif.</strong> Marie Exemple, Lumen et La Fournée n&#x27;existent pas : cette page montre le résultat attendu du TP.</p>
+<main class="page" id="contenu">
+  <header class="entete">
+    <span class="monogramme" aria-hidden="true">ME</span>
+    <h1 class="nom"><span class="nom-texte">Marie Exemple</span></h1>
+    <span class="trait" aria-hidden="true"></span>
+    <p class="phrase">Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.</p>
+  </header>
+
+  <div class="corps">
+    <section class="fiche" aria-labelledby="t-bref">
+      <h2 id="t-bref">En bref</h2>
+      <dl>
+        <div class="ligne"><dt>Métier</dt><dd>Chargée de marketing digital</dd></div>
+        <div class="ligne"><dt>Employeur</dt><dd><a href="https://lumen.example/">Lumen</a>, éditeur de logiciels pour boulangeries</dd></div>
+        <div class="ligne"><dt>Ville</dt><dd>Lyon</dd></div>
+        <div class="ligne"><dt>Domaines de compétence</dt><dd><ul class="domaines"><li>Marketing digital</li><li>SEO</li><li>Emailing</li><li>Marketing des artisans</li></ul></dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="t-fais">
+      <h2 id="t-fais">Ce que je fais</h2>
+      <p>Chez Lumen, je prépare les campagnes d&#x27;emailing et les pages du site qui présentent nos logiciels aux boulangers. Je mesure ce qui fait venir de nouveaux clients, et je réécris ce qui ne marche pas.</p>
+    </section>
+
+    <section aria-labelledby="t-parcours">
+      <h2 id="t-parcours">Parcours</h2>
+      <p>Après une licence de communication, je suis le MBA Marketing Digital et Intelligence Artificielle de De Vinci Executive Education, en alternance chez Lumen.</p>
+    </section>
+
+    <section class="liee" aria-labelledby="t-liee">
+      <h2 id="t-liee">Ma lettre</h2>
+      <p>La Fournée : une lettre mensuelle sur le marketing des artisans boulangers</p>
+      <p>Mon rôle : <span class="relation">autrice</span>.</p>
+    </section>
+
+    <section aria-labelledby="t-ailleurs">
+      <h2 id="t-ailleurs">Me retrouver ailleurs</h2>
+      <ul class="profils">
+        <li><a href="https://www.linkedin.com/in/marie-exemple-fictive" rel="me">LinkedIn</a> <span class="adresse">linkedin.com/in/marie-exemple-fictive</span></li>
+      </ul>
+    </section>
   </div>
-</header>
-
-<section>
-  <h2>En bref</h2>
-  <ul>
-    <li>Métier : chargée de marketing digital</li>
-    <li>Employeur : Lumen (logiciels pour boulangeries)</li>
-    <li>Ville : Lyon</li>
-    <li>Spécialités : marketing digital, SEO, emailing</li>
-  </ul>
-</section>
-
-<section>
-  <h2>Ce que je fais</h2>
-  <p>Chez Lumen, Marie Exemple prépare les campagnes d'emailing et les pages du site qui présentent les logiciels de Lumen aux boulangers.</p>
-</section>
-
-<section>
-  <h2>Parcours</h2>
-  <p>Marie Exemple suit le MBA Marketing Digital et Intelligence Artificielle de De Vinci Executive Education, en alternance chez Lumen.</p>
-</section>
-
-<section>
-  <h2>Me retrouver ailleurs</h2>
-  <ul>
-    <li><a href="https://www.linkedin.com/in/marie-exemple">LinkedIn</a></li>
-  </ul>
-</section>
-<p style="color:#b45309"><strong>Exemple fictif.</strong> Marie Exemple et Lumen n'existent pas : cette page montre à quoi ressemble un TP terminé.</p>
-<!-- FIN DU TEXTE -->
-
-<footer>
-  Version texte de cette page : <a href="moi.md">moi.md</a> · <a href="../llms.txt">llms.txt</a><br>
-  Page d'entité réalisée pendant le module SEO &amp; GEO du MBA MDIA (De Vinci Executive Education), novembre 2026.
-</footer>
 </main>
+
+<footer class="pied">
+  <p>Adresse de cette page : <a href="https://agencekoeki.github.io/mba-mdia-page-entite/exemple/">https://agencekoeki.github.io/mba-mdia-page-entite/exemple/</a></p>
+  <p>Pour les machines : cette page existe aussi en texte brut, <a href="moi.md">moi.md</a>, avec son sommaire, <a href="llms.txt">llms.txt</a>. Les faits de cette page sont aussi écrits dans son code, en données structurées schema.org.</p>
+  <p class="credit">Page construite depuis une seule fiche (fiche.json) pendant le module SEO &amp; GEO du MBA MDIA, De Vinci Executive Education, novembre 2026.</p>
+</footer>
 </body>
 </html>

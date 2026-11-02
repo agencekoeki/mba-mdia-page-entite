@@ -1,0 +1,212 @@
+/* ------------------------------------------------------------------
+   base.css : la structure commune aux trois thèmes.
+   Les couleurs et les polices viennent du thème choisi (clair.css,
+   sombre.css ou editorial.css) ; la couleur d'accent vient de
+   fiche.json. Ce fichier est inséré dans la page par construire.py.
+   ------------------------------------------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: var(--police-texte);
+  font-size: var(--taille-texte, 1.125rem);
+  line-height: var(--interligne, 1.6);
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent-texte);
+  text-decoration-line: underline;
+  text-decoration-thickness: .07em;
+  text-underline-offset: .2em;
+}
+a:hover { text-decoration-thickness: .14em; }
+
+:focus-visible {
+  outline: 3px solid var(--accent-texte);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Bandeau « exemple fictif » (seulement si fiche.json contient "fictif": true) */
+.bandeau {
+  margin: 0;
+  max-width: none;
+  padding: .7rem 1.25rem;
+  background: var(--bandeau-fond);
+  color: var(--bandeau-encre);
+  font-size: .95rem;
+  line-height: 1.45;
+  text-align: center;
+}
+.bandeau strong { font-weight: 700; }
+
+/* ---------- La page ---------- */
+.page {
+  width: 100%;
+  max-width: var(--largeur, 46rem);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 7vw, 5.5rem) 1.25rem 2rem;
+}
+
+/* ---------- L'en-tête : qui je suis ---------- */
+.entete { margin: 0 0 3rem; }
+
+.monogramme {
+  display: inline-grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--rayon-monogramme, 12px);
+  background: var(--accent);
+  color: var(--sur-accent);
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: .02em;
+}
+
+.nom {
+  margin: 1.5rem 0 0;
+  font-family: var(--police-titre);
+  font-weight: var(--graisse-titre, 700);
+  font-stretch: var(--chasse-titre, 100%);
+  font-size: var(--taille-nom, clamp(2.6rem, 1.3rem + 5.6vw, 5rem));
+  line-height: 1;
+  letter-spacing: var(--approche-nom, -.025em);
+  text-wrap: balance;
+}
+.nom-texte { display: inline-block; }
+
+.trait {
+  display: block;
+  width: var(--largeur-trait, 4.5rem);
+  height: var(--epaisseur-trait, .32rem);
+  margin: 1.4rem 0 1.4rem;
+  background: var(--accent);
+  border-radius: 1px;
+  transform-origin: left center;
+}
+
+.phrase {
+  margin: 0;
+  max-width: 34em;
+  font-size: var(--taille-phrase, clamp(1.2rem, 1.02rem + .8vw, 1.5rem));
+  line-height: 1.42;
+  color: var(--encre-2);
+  text-wrap: pretty;
+}
+
+/* ---------- Les sections ---------- */
+.corps > section + section { margin-top: 2.75rem; }
+
+h2 {
+  margin: 0 0 .8rem;
+  font-family: var(--police-titre);
+  font-weight: var(--graisse-h2, 650);
+  font-size: var(--taille-h2, 1.3rem);
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+
+p { margin: 0 0 .9em; max-width: 38em; }
+p:last-child { margin-bottom: 0; }
+
+/* La fiche : les faits, ligne par ligne. Ce sont exactement les faits du JSON-LD. */
+.fiche dl { margin: 0; }
+.fiche .ligne {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: .85rem 0;
+  border-top: 1px solid var(--ligne);
+}
+.fiche .ligne:last-child { border-bottom: 1px solid var(--ligne); }
+.fiche dt {
+  color: var(--encre-3);
+  font-size: .95rem;
+  line-height: 1.6;
+  padding-top: .1rem;
+}
+.fiche dd { margin: 0; font-weight: 500; }
+
+.domaines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+.domaines li {
+  padding: .12em .7em;
+  border: 1px solid var(--ligne-forte);
+  border-radius: 999px;
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.relation { font-weight: 600; }
+
+/* Les profils ailleurs */
+.profils {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.profils li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .15rem 1rem;
+  padding: .7rem 0;
+  border-top: 1px solid var(--ligne);
+}
+.profils li:last-child { border-bottom: 1px solid var(--ligne); }
+.profils a { font-weight: 600; }
+.profils .adresse {
+  color: var(--encre-3);
+  font-size: .9rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Le pied de page : la page pour les machines ---------- */
+.pied {
+  width: 100%;
+  max-width: var(--largeur, 46rem);
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3.5rem;
+  color: var(--encre-3);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+.pied p { margin: 0 0 .5em; max-width: none; }
+.pied a { overflow-wrap: anywhere; }
+.pied .credit { margin-top: 1rem; }
+
+/* ---------- Petits écrans ---------- */
+@media (max-width: 34rem) {
+  .fiche .ligne { grid-template-columns: 1fr; gap: .1rem; }
+  .profils li { flex-direction: column; }
+}
+
+/* ---------- Impression ---------- */
+@media print {
+  body { background: #fff; color: #000; }
+  .bandeau { border: 1px solid #999; }
+  a { color: #000; }
+  .page, .pied { max-width: none; padding: 1rem 0; }
+}

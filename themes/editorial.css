@@ -1,0 +1,80 @@
+/* ------------------------------------------------------------------
+   Thème « editorial » : une page qui se lit comme un portrait de
+   magazine. Le nom et le texte sont en Newsreader (un caractère à
+   empattements fait pour l'écran) ; les étiquettes et le pied de
+   page en Instrument Sans, pour bien séparer les faits du récit.
+   Polices : Newsreader et Instrument Sans (SIL OFL).
+   ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("polices/newsreader.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("polices/newsreader-italique.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("polices/instrument-sans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  --fond: #FDFDFB;
+  --encre: #1A1A18;
+  --encre-2: #3A3A36;
+  --encre-3: #64635D;
+  --ligne: #E3E2DC;
+  --ligne-forte: #CFCDC5;
+  --bandeau-fond: #FBEFD0;
+  --bandeau-encre: #5C3D00;
+
+  --police-texte: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --police-titre: "Newsreader", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --police-ui: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --taille-texte: 1.1875rem;
+  --interligne: 1.66;
+  --graisse-titre: 430;
+  --approche-nom: -.025em;
+  --taille-nom: clamp(3rem, 1.5rem + 6.6vw, 6rem);
+  --taille-phrase: clamp(1.3rem, 1.1rem + .9vw, 1.65rem);
+  --graisse-h2: 500;
+  --taille-h2: 1.5rem;
+  --largeur-trait: 7rem;
+  --epaisseur-trait: 2px;
+  --rayon-monogramme: 50%;
+  --largeur: 42rem;
+}
+
+.nom { line-height: .98; }
+.phrase { font-style: italic; color: var(--encre-2); }
+h2 { font-style: italic; letter-spacing: 0; }
+
+.monogramme { font-family: var(--police-titre); font-weight: 500; font-size: 1.25rem; }
+
+.fiche dt,
+.domaines li,
+.profils .adresse,
+.pied,
+.bandeau {
+  font-family: var(--police-ui);
+}
+.fiche dt { font-size: .9rem; padding-top: .3rem; }
+.domaines li { font-size: .88rem; }
+.fiche dd { font-weight: 500; }
+.profils a { font-weight: 560; }

@@ -1,0 +1,38 @@
+/* ------------------------------------------------------------------
+   Thème « clair » : net, lumineux, une seule famille de caractères.
+   Le nom est composé en Instrument Sans étroite et grasse : c'est
+   lui qu'on voit en premier. Le reste reste calme.
+   Police : Instrument Sans (SIL Open Font License, voir polices/).
+   ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("polices/instrument-sans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  --fond: #F5F6F8;
+  --encre: #141A26;
+  --encre-2: #3E4757;
+  --encre-3: #5B6475;
+  --ligne: #DDE1E8;
+  --ligne-forte: #C3C9D3;
+  --bandeau-fond: #FFF1CC;
+  --bandeau-encre: #5C3D00;
+
+  --police-texte: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --police-titre: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --chasse-titre: 78%;
+  --graisse-titre: 700;
+  --approche-nom: -.02em;
+  --taille-nom: clamp(2.9rem, 1.4rem + 6.4vw, 5.6rem);
+  --graisse-h2: 650;
+  --largeur: 46rem;
+}

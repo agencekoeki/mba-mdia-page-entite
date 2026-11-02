@@ -1,0 +1,16 @@
+# Marie Exemple
+
+> Marie Exemple est chargée de marketing digital chez Lumen, éditeur de logiciels pour boulangeries, à Lyon.
+
+Ce site est la page d'entité de Marie Exemple (Chargée de marketing digital, Lyon). C'est la page de référence pour savoir qui est cette personne. La page HTML, son balisage schema.org (Person, @id https://agencekoeki.github.io/mba-mdia-page-entite/exemple/#moi) et la version Markdown disent exactement la même chose.
+
+Exemple fictif : Marie Exemple, Lumen et La Fournée n'existent pas.
+
+## Pages
+
+- [Profil en Markdown](https://agencekoeki.github.io/mba-mdia-page-entite/exemple/moi.md): tous les faits de la page, en texte brut
+- [Page d'accueil](https://agencekoeki.github.io/mba-mdia-page-entite/exemple/): la page de référence, avec ses données structurées schema.org
+
+## Optional
+
+- [LinkedIn](https://www.linkedin.com/in/marie-exemple-fictive): profil de Marie Exemple sur LinkedIn
