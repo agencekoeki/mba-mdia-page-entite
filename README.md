@@ -356,7 +356,7 @@ Une photo pro, que vous acceptez de voir en public. Rien d'obligatoire : sans ph
 Une page neuve n'existe pas pour Google tant qu'il ne l'a pas trouvée : aucun lien n'y mène encore. **Google Search Console** permet de lui dire « mon site existe, voici ses pages ». Il vous faut un compte Google (celui de l'école ou le vôtre).
 
 1. Ouvrez **search.google.com/search-console** et connectez-vous.
-2. **Ajouter une propriété** (dans le menu des propriétés, en haut à gauche). Choisissez **Préfixe de l'URL** (pas « Domaine »), tapez `https://identifiant.github.io/`, puis **Continuer**.
+2. Ouvrez le menu des propriétés (en haut à gauche), puis **Ajouter la propriété**. Une fenêtre « Sélectionnez un type de propriété » s'ouvre : cliquez sur **Ajouter un site Web** (pas Instagram, TikTok, X ou YouTube). Dans la fenêtre suivante, choisissez la colonne de droite, **Préfixe de l'URL** (pas « Domaine »), tapez `https://identifiant.github.io/`, puis **Continuer**. (Si vous n'avez encore aucune propriété, Search Console ouvre directement cette fenêtre.)
 3. Parmi les méthodes de validation, ouvrez **Balise HTML**, puis **Copier** la balise `<meta name="google-site-verification" content="…">`.
 4. Dans **fiche.json**, ajoutez une ligne et collez-y la balise, ou seulement le code entre les guillemets après `content=` :
    ```json
@@ -365,7 +365,7 @@ Une page neuve n'existe pas pour Google tant qu'il ne l'a pas trouvée : aucun l
    **Commit changes**, puis attendez la **coche verte** de l'Action (une à deux minutes).
 5. Revenez dans Search Console et cliquez sur **Valider**. « Propriété validée » : c'est gagné. Ne retirez jamais ce champ : Google revérifie de temps en temps.
 6. Menu **Sitemaps** : dans « Ajouter un sitemap », tapez `sitemap.xml`, puis **Envoyer**. Le sitemap liste votre page d'accueil et vos pages de contenu.
-7. **Inspection de l'URL** (la barre tout en haut) : collez l'adresse de votre page d'accueil, puis **Demander une indexation**. Recommencez avec chaque page de contenu.
+7. **Inspection de l'URL** (la barre tout en haut) : collez l'adresse de votre page d'accueil, puis **Demander une indexation** (à droite, sous « Cette URL est sur Google » ou « … n'est pas sur Google »). Recommencez avec chaque page de contenu.
 
 **C'est bon quand** : la propriété est validée, le sitemap est envoyé, l'indexation est demandée.
 
