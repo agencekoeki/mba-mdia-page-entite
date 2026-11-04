@@ -127,6 +127,32 @@ Un projet, une association, un podcast, une lettre, un livre : une seconde entit
 },
 ```
 
+## Jour 2 : vos pages, votre photo, Google (mallette 2.1)
+
+Ces trois champs demandent la mallette **2.1** : remplacez d'abord `outils/construire.py` (geste A du jour 2, dans le README). Avec l'ancienne version, l'Action les ignore et le dit (« champ inconnu, ignoré »).
+
+### `pages`
+La liste de vos pages de contenu, écrites en Markdown dans le dossier `pages/` de votre dépôt. Chacune devient une page web à votre adresse (`pages/relancer-la-newsletter.md` donne `…/relancer-la-newsletter.html`), signée par votre entité dans son code (un `Article` dont l'`author` est `…/#moi`), et listée sous « Mes pages » sur votre page d'accueil.
+```json
+"pages": ["pages/relancer-la-newsletter.md"],
+```
+Le fichier commence par `# Le titre`, puis (facultatif) `Date : 2026-11-04`, puis votre texte. Ce qui est compris : `##` et `###` (sous-titres), `-` (listes), `[texte](https://…)` (liens), `**gras**`, `>` (citation), une ligne vide entre deux paragraphes. Un lien vers une autre de vos pages s'écrit avec son nom de fichier : `[ma page](pages/autre-page.md)`. Exemple complet et fictif : `exemple/sources/relancer-une-newsletter.md`.
+
+Créer ou corriger un fichier `.md` ne republie rien : c'est la fiche qui déclenche l'Action. Après une correction de page, relancez **Actions → Publier ma page → Run workflow**.
+
+### `photo`
+Le nom exact d'une photo envoyée à la racine du dépôt (**Add file → Upload files**) : JPG, PNG ou WebP, moins de 2 Mo. Elle s'affiche à la place de vos initiales et devient la propriété `image` de votre entité. Facultative : ne mettez qu'une photo que vous acceptez de voir en public.
+```json
+"photo": "photo.jpg",
+```
+Une adresse `https://…` marche aussi, mais une photo hébergée par LinkedIn ou Instagram change d'adresse et finit par disparaître : préférez le fichier.
+
+### `verification_google`
+Le code que donne Google Search Console pour prouver que le site est à vous (méthode **Balise HTML**). Collez la balise entière ou seulement ce qu'il y a entre les guillemets après `content=` : la mallette l'écrit dans le code de votre page d'accueil. Ne le retirez plus ensuite : Google revérifie.
+```json
+"verification_google": "le-code-copié-dans-search-console",
+```
+
 ## Les champs techniques
 
 ### `type`

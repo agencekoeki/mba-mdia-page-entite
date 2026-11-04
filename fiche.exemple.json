@@ -27,5 +27,8 @@
   "couleur_accent": "#8E2B6E",
   "animations": true,
   "identifiant_github": "marie-exemple-fictive",
+  "photo": "exemple/sources/marie-exemple.png",
+  "pages": ["exemple/sources/relancer-une-newsletter.md"],
+  "verification_google": "EXEMPLE-fictif-0123456789abcdefABCDEF_xyz",
   "fictif": true
 }

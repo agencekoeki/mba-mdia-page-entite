@@ -14,6 +14,13 @@ fabrique dans _site/ :
   .nojekyll     « publie les fichiers tels quels »
   polices/      les polices du thème choisi
 
+Version 2.1 (jour 2), trois champs optionnels de plus dans fiche.json :
+  "photo"                votre photo (fichier envoyé dans le dépôt), affichée et déclarée (image)
+  "verification_google"  le code de Search Console (méthode « Balise HTML »)
+  "pages"                vos pages de contenu, écrites en Markdown dans pages/ :
+                         chacune devient <nom>.html (avec un JSON-LD Article signé
+                         par vous) et <nom>.md, reliée à la page d'accueil
+
 Règle d'or, garantie par construction : la page visible, le JSON-LD et
 moi.md sont tous écrits à partir des MÊMES faits (la fonction faits()).
 Rien n'est inventé, rien n'est caché.
@@ -44,6 +51,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 RACINE = Path(__file__).resolve().parent.parent
+VERSION = "2.1"
 THEMES = ("clair", "sombre", "editorial")
 COULEUR_PAR_DEFAUT = "#2952CC"
 
@@ -52,6 +60,7 @@ CHAMPS = [
     "type", "nom", "phrase_identite", "metier", "employeur", "ville", "domaines",
     "ce_que_je_fais", "parcours", "profils", "entite_liee",
     "theme", "couleur_accent", "animations", "identifiant_github", "fictif",
+    "photo", "verification_google", "pages",
 ]
 OBLIGATOIRES = ["nom", "phrase_identite", "metier", "ville", "domaines", "identifiant_github"]
 
@@ -67,6 +76,9 @@ EXEMPLES = {
     "theme": '"theme": "clair",',
     "couleur_accent": '"couleur_accent": "#2952CC",',
     "animations": '"animations": true,',
+    "photo": '"photo": "photo.jpg",',
+    "verification_google": '"verification_google": "le code donné par Search Console",',
+    "pages": '"pages": ["pages/ma-premiere-page.md"],',
 }
 
 PLACEHOLDERS = ("prénom nom", "[", "…", "identifiant", "votre-profil", "votre métier", "xxx")
@@ -612,7 +624,7 @@ def valider(fiche, j):
         return None
 
     # Rien de privé : la page est publique.
-    tout = json.dumps(fiche, ensure_ascii=False)
+    tout = json.dumps({k: v for k, v in fiche.items() if k != "verification_google"}, ensure_ascii=False)
     if re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", tout):
         j.conseil("", "la fiche contient une adresse e-mail : elle sera publique. Gardez-la seulement si c'est voulu.")
     if re.search(r"(?<!\d)(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}(?!\d)", tout):
@@ -646,6 +658,395 @@ def valider(fiche, j):
 
 
 # ---------------------------------------------------------------------------
+# Jour 2 (v2.1) : la photo, la vérification Google, les pages de contenu
+# ---------------------------------------------------------------------------
+
+PHOTO_MAX = 2 * 1024 * 1024
+PHOTO_EXT = {".jpg": "JPEG", ".jpeg": "JPEG", ".png": "PNG", ".webp": "WebP"}
+RESERVES = {"index", "moi", "llms", "robots", "sitemap", "404", "polices"}
+MOIS = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
+        "septembre", "octobre", "novembre", "décembre")
+
+
+def slugifier(s):
+    s = sans_accents(str(s)).lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
+    return re.sub(r"-{2,}", "-", s)
+
+
+def date_fr(iso):
+    a, m, j_ = iso.split("-")
+    j_ = int(j_)
+    return "%s %s %s" % ("1er" if j_ == 1 else j_, MOIS[int(m) - 1], a)
+
+
+def trouver_fichier(base, rel):
+    """Le fichier tel qu'écrit, sinon le même nom sans tenir compte des majuscules."""
+    p = (base / rel)
+    if p.is_file():
+        return p, False
+    dossier = p.parent
+    if dossier.is_dir():
+        for x in dossier.iterdir():
+            if x.is_file() and x.name.lower() == p.name.lower():
+                return x, True
+    return None, False
+
+
+def fichiers_proches(base, rel, motif):
+    noms = []
+    for x in list(base.glob(motif)):
+        try:
+            noms.append(str(x.relative_to(base)).replace(os.sep, "/"))
+        except ValueError:
+            pass
+    return difflib.get_close_matches(rel, noms, n=1, cutoff=0.5)
+
+
+def lire_photo(v, j, base):
+    """Renvoie {"fichier": Path ou None, "url": URL externe ou None, "nom_sortie": …}, ou None."""
+    if v in (None, ""):
+        return None
+    if not isinstance(v, str):
+        j.erreur("photo", "la valeur doit être un texte entre guillemets.", '"photo": "photo.jpg",')
+        return None
+    brut = v.strip()
+    if re.match(r"^https?://", brut, re.I):
+        u = verifier_url(brut, "photo", j)
+        if not u:
+            return None
+        if urlsplit(u).scheme.lower() != "https":
+            j.erreur("photo", "l'adresse de la photo commence par http://.", "utilisez une adresse en https://, ou envoyez la photo dans le dépôt.")
+            return None
+        if re.search(r"(linkedin|licdn|fbcdn|instagram)", u, re.I):
+            j.conseil("photo", "une photo hébergée par LinkedIn ou Instagram change souvent d'adresse et peut disparaître : "
+                               "envoyez plutôt le fichier dans le dépôt (Add file > Upload files).")
+        return {"fichier": None, "url": u, "nom_sortie": None}
+    rel = brut.lstrip("./").replace("\\", "/")
+    ext = Path(rel).suffix.lower()
+    if ext in (".heic", ".heif"):
+        j.erreur("photo", "« %s » est au format HEIC (photo d'iPhone), que beaucoup de navigateurs n'affichent pas." % brut,
+                 "ouvrez la photo et enregistrez-la en JPG (ou faites une capture d'écran), envoyez ce fichier, puis écrivez son nom ici.")
+        return None
+    if ext not in PHOTO_EXT:
+        j.erreur("photo", "« %s » n'est pas une photo JPG, PNG ou WebP." % brut,
+                 'écrivez le nom exact du fichier envoyé dans le dépôt, avec son extension, par exemple "photo.jpg".')
+        return None
+    p, casse = trouver_fichier(base, rel)
+    if p is None:
+        proche = fichiers_proches(base, rel, "*" + ext) or fichiers_proches(base, rel, "*.*")
+        j.erreur("photo", "je ne trouve pas le fichier « %s » dans le dépôt." % brut,
+                 "envoyez-le à la racine du dépôt (Add file > Upload files, puis Commit changes), "
+                 "et recopiez ici son nom exact%s." % (" (vouliez-vous dire « %s » ?)" % proche[0] if proche else ""))
+        return None
+    if casse:
+        j.conseil("photo", "le fichier s'appelle « %s » (majuscules différentes) : je l'utilise." % p.name)
+    taille = p.stat().st_size
+    if taille > PHOTO_MAX:
+        j.erreur("photo", "« %s » pèse %.1f Mo : c'est trop lourd pour une page web (2 Mo au plus)." % (p.name, taille / 1048576),
+                 "réduisez-la (une largeur de 800 pixels suffit), par exemple avec squoosh.app, puis renvoyez-la.")
+        return None
+    debut = p.read_bytes()[:12]
+    signature = ("PNG" if debut.startswith(b"\x89PNG") else "JPEG" if debut.startswith(b"\xff\xd8")
+                 else "WebP" if debut[:4] == b"RIFF" and debut[8:12] == b"WEBP" else None)
+    if signature is None:
+        j.erreur("photo", "« %s » n'est pas une image lisible (JPG, PNG ou WebP)." % p.name,
+                 "renvoyez la photo depuis votre ordinateur, sans la renommer à la main.")
+        return None
+    if signature != PHOTO_EXT[ext]:
+        j.conseil("photo", "« %s » est en réalité une image %s : elle s'affichera quand même." % (p.name, signature))
+    nom = (slugifier(Path(p.name).stem) or "photo") + ext.replace(".jpeg", ".jpg")
+    return {"fichier": p, "url": None, "nom_sortie": nom}
+
+
+def lire_verification(v, j):
+    if v in (None, ""):
+        return None
+    if not isinstance(v, str):
+        j.erreur("verification_google", "la valeur doit être un texte entre guillemets.",
+                 '"verification_google": "le code donné par Search Console",')
+        return None
+    brut = v.strip()
+    if re.match(r"^google[0-9a-f]+\.html$", brut, re.I):
+        j.erreur("verification_google", "« %s » est le nom d'un fichier : c'est la méthode « Fichier HTML »." % brut,
+                 "dans Search Console, choisissez plutôt la méthode « Balise HTML », copiez la balise et collez-la ici.")
+        return None
+    m = re.search(r"content\s*=\s*[\"'“”]([^\"'“”]+)[\"'“”]", brut, re.I)
+    code = m.group(1).strip() if m else brut
+    if m:
+        j.conseil("verification_google", "j'ai extrait le code de la balise ; vous pouvez n'écrire que \"%s\"." % code)
+    if not re.match(r"^[A-Za-z0-9_\-]{10,100}$", code):
+        j.erreur("verification_google", "je ne reconnais pas un code de vérification Google dans « %s »." % (brut[:80]),
+                 "dans Search Console (méthode « Balise HTML »), copiez la balise entière <meta name=\"google-site-verification\" "
+                 "content=\"…\"> ou seulement ce qu'il y a entre les guillemets après content=.")
+        return None
+    return code
+
+
+def inline_md(texte, liens_pages, j, ou):
+    """Échappe le texte, puis traduit [texte](adresse) et **gras**."""
+    t = e(texte)
+
+    def lien(m):
+        etiquette, cible = m.group(1), html.unescape(m.group(2)).strip()
+        bas = cible.lower()
+        if bas.startswith(("javascript:", "data:", "vbscript:")):
+            j.conseil(ou, "lien « %s » ignoré : adresse refusée." % cible)
+            return etiquette
+        cle = bas.lstrip("./")
+        if cle.endswith(".md") and cle not in ("moi.md",):
+            cle2 = cle if cle.startswith("pages/") else "pages/" + cle
+            if cle in liens_pages or cle2 in liens_pages:
+                cible = liens_pages.get(cle) or liens_pages[cle2]
+            else:
+                j.conseil(ou, "le lien vers « %s » ne mène à aucune page déclarée dans \"pages\" : "
+                              "déclarez la page, ou corrigez le nom du fichier." % cible)
+        elif not re.match(r"^(https?://|mailto:|#|/|\./|[\w\-]+\.(html|md|txt|xml)(#.*)?$)", cible, re.I):
+            j.conseil(ou, "le lien « %s » n'est pas une adresse complète : ajoutez https:// au début." % cible)
+        return '<a href="%s">%s</a>' % (e(cible), etiquette)
+
+    t = re.sub(r"\[([^\]\n]+)\]\(\s*([^)\s]+)\s*\)", lien, t)
+    t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
+    return t
+
+
+def texte_brut_md(texte):
+    t = re.sub(r"\[([^\]\n]+)\]\(\s*[^)\s]+\s*\)", r"\1", texte)
+    return re.sub(r"\*\*(.+?)\*\*", r"\1", t).strip()
+
+
+def lire_page_md(base, rel, i, j, nom_personne):
+    """Lit pages/….md. Renvoie un dict, ou None (et note l'erreur)."""
+    ou = "pages[%d]" % i
+    if not isinstance(rel, str) or not rel.strip():
+        j.erreur(ou, "chaque page doit être un nom de fichier entre guillemets.", '"pages": ["pages/ma-premiere-page.md"],')
+        return None
+    rel = rel.strip().lstrip("./").replace("\\", "/")
+    if not rel.lower().endswith(".md"):
+        j.erreur(ou, "« %s » ne finit pas par .md." % rel,
+                 'une page est un fichier Markdown : nommez-le par exemple "pages/ma-premiere-page.md".')
+        return None
+    p, casse = trouver_fichier(base, rel)
+    if p is None and not rel.startswith("pages/"):
+        p, casse = trouver_fichier(base, "pages/" + rel)
+    if p is None:
+        proche = fichiers_proches(base, rel, "pages/*.md") or fichiers_proches(base, rel, "**/*.md")
+        j.erreur(ou, "je ne trouve pas le fichier « %s » dans le dépôt." % rel,
+                 "créez-le (Add file > Create new file, nom : %s), ou recopiez son nom exact%s. "
+                 "Attention : majuscules, accents et espaces comptent." % (
+                     rel, " (vouliez-vous dire « %s » ?)" % proche[0] if proche else ""))
+        return None
+    if casse:
+        j.conseil(ou, "le fichier s'appelle « %s » (majuscules différentes) : je l'utilise." % p.name)
+    try:
+        lignes = p.read_text(encoding="utf-8-sig").splitlines()
+    except UnicodeDecodeError:
+        j.erreur(ou, "« %s » n'est pas enregistré en UTF-8." % rel,
+                 "créez le fichier directement dans GitHub (Add file > Create new file) et collez-y le texte.")
+        return None
+    try:
+        nom_affiche = str(p.relative_to(base)).replace(os.sep, "/")
+    except ValueError:
+        nom_affiche = rel
+    k = 0
+    while k < len(lignes) and not lignes[k].strip():
+        k += 1
+    m = re.match(r"^#\s+(.+?)\s*#*\s*$", lignes[k]) if k < len(lignes) else None
+    if not m:
+        vue = lignes[k].strip()[:60] if k < len(lignes) else "(fichier vide)"
+        j.erreur(ou, "la première ligne de %s doit être le titre, précédé de # et d'une espace (j'y lis : « %s »)." % (nom_affiche, vue),
+                 "écrivez en première ligne : # Le titre de ma page")
+        return None
+    titre = m.group(1).strip()
+    k += 1
+    while k < len(lignes) and not lignes[k].strip():
+        k += 1
+    date = None
+    if k < len(lignes):
+        md = re.match(r"^\s*(?:date|publi[ée]e? le)\s*:\s*(.+?)\s*$", lignes[k], re.I)
+        if md:
+            brute = md.group(1)
+            iso = None
+            m1 = re.match(r"^(\d{4})-(\d{1,2})-(\d{1,2})$", brute)
+            m2 = re.match(r"^(\d{1,2})/(\d{1,2})/(\d{4})$", brute)
+            if m1:
+                a_, mo, jj = int(m1.group(1)), int(m1.group(2)), int(m1.group(3))
+            elif m2:
+                a_, mo, jj = int(m2.group(3)), int(m2.group(2)), int(m2.group(1))
+            else:
+                a_ = mo = jj = None
+            if a_:
+                try:
+                    import datetime
+                    iso = datetime.date(a_, mo, jj).isoformat()
+                except ValueError:
+                    iso = None
+            if not iso:
+                j.erreur(ou, "la date « %s » (ligne %d de %s) n'est pas une date valide." % (brute, k + 1, nom_affiche),
+                         "écrivez par exemple : Date : 2026-11-04 (année-mois-jour) ou Date : 04/11/2026")
+                return None
+            date = iso
+            k += 1
+    corps = lignes[k:]
+    blocs, courant = [], []
+    for l in corps:
+        if l.strip():
+            courant.append(l.rstrip())
+        elif courant:
+            blocs.append(courant)
+            courant = []
+    if courant:
+        blocs.append(courant)
+    if not blocs:
+        j.erreur(ou, "%s n'a pas de texte sous son titre." % nom_affiche,
+                 "écrivez vos paragraphes sous le titre, séparés par une ligne vide.")
+        return None
+    texte_seul = " ".join(texte_brut_md(re.sub(r"^\s*(#+|[-*]|\d+[.)]|>)\s+", "", l)) for b in blocs for l in b)
+    if nom_personne and nom_personne.casefold() not in texte_seul.casefold() and nom_personne.casefold() not in titre.casefold():
+        j.conseil(ou, "votre nom (%s) n'apparaît pas dans %s : nommez-vous au moins une fois, « Marie Exemple a… » "
+                      "plutôt que « j'ai… » (geste « Nommer »)." % (nom_personne, nom_affiche))
+    if "[à sourcer]" in texte_seul.casefold() or "[a sourcer]" in sans_accents(texte_seul.casefold()):
+        j.conseil(ou, "%s contient encore [À SOURCER] : une preuve manque. Ajoutez-la, ou retirez la phrase." % nom_affiche)
+    nb_mots = len(texte_seul.split())
+    if nb_mots < 80:
+        j.conseil(ou, "%s ne fait que %d mot(s) : une page qui prouve en demande au moins 150 (un cas, une date, un résultat)." % (nom_affiche, nb_mots))
+    if len(titre) > 110:
+        j.conseil(ou, "le titre fait %d caractères : visez moins de 70, c'est le titre que Google affiche." % len(titre))
+    slug = slugifier(Path(p.name).stem)
+    if not slug:
+        j.erreur(ou, "le nom du fichier « %s » ne donne pas d'adresse utilisable." % p.name,
+                 "renommez-le avec des lettres et des tirets, par exemple pages/ma-premiere-page.md")
+        return None
+    if slug in RESERVES:
+        j.erreur(ou, "« %s » donnerait l'adresse %s.html, réservée à la mallette." % (p.name, slug),
+                 "renommez le fichier, par exemple pages/%s-article.md" % slug)
+        return None
+    return {"cle": nom_affiche.lower(), "fichier": nom_affiche, "titre": titre, "date": date, "blocs": blocs,
+            "slug": slug, "texte_seul": texte_seul, "nb_mots": nb_mots}
+
+
+def lire_pages(v, j, base, nom_personne):
+    if v in (None, "", []):
+        return []
+    if isinstance(v, str):
+        v = [v]
+        j.conseil("pages", 'écrivez une liste entre crochets : "pages": ["%s"]' % v[0])
+    if not isinstance(v, list):
+        j.erreur("pages", "la valeur doit être une liste entre crochets.", '"pages": ["pages/ma-premiere-page.md"],')
+        return []
+    pages, slugs = [], {}
+    for i, rel in enumerate(v):
+        pg = lire_page_md(base, rel, i, j, nom_personne)
+        if not pg:
+            continue
+        if pg["slug"] in slugs:
+            j.erreur("pages[%d]" % i, "deux pages donneraient la même adresse %s.html (%s et %s)." % (
+                pg["slug"], slugs[pg["slug"]], pg["fichier"]), "renommez l'un des deux fichiers, ou retirez le doublon de la liste.")
+            continue
+        slugs[pg["slug"]] = pg["fichier"]
+        pages.append(pg)
+    if len(pages) > 30:
+        j.conseil("pages", "%d pages : c'est beaucoup pour une page d'entité. Gardez celles qui prouvent." % len(pages))
+    return pages
+
+
+def lire_extras(fiche, j, base, f):
+    """Les trois champs du jour 2. Toujours appelée, pour montrer toutes les erreurs d'un coup."""
+    if not isinstance(fiche, dict):
+        return {"photo": None, "verification_google": None, "pages": []}
+    nom = f["nom"] if f and f.get("nom") else (fiche.get("nom") if isinstance(fiche.get("nom"), str) else None)
+    return {
+        "photo": lire_photo(fiche.get("photo"), j, base),
+        "verification_google": lire_verification(fiche.get("verification_google"), j),
+        "pages": lire_pages(fiche.get("pages"), j, base, nom),
+    }
+
+
+def html_blocs(blocs, liens_pages, j, ou):
+    """Les blocs Markdown d'une page, en HTML (paragraphes, ##, ###, listes, citations)."""
+    L = []
+    for b in blocs:
+        tete = b[0]
+        mh = re.match(r"^(#{1,3})\s+(.+?)\s*#*\s*$", tete)
+        if mh:
+            niveau = 3 if len(mh.group(1)) == 3 else 2
+            if len(mh.group(1)) == 1:
+                j.conseil(ou, "un seul # par page, pour le titre ; « # %s » devient un sous-titre ##." % mh.group(2))
+            L.append("<h%d>%s</h%d>" % (niveau, inline_md(mh.group(2), liens_pages, j, ou), niveau))
+            b = b[1:]
+            if not b:
+                continue
+        if all(re.match(r"^\s*[-*]\s+", l) for l in b):
+            L.append("<ul>")
+            for l in b:
+                L.append("  <li>%s</li>" % inline_md(re.sub(r"^\s*[-*]\s+", "", l), liens_pages, j, ou))
+            L.append("</ul>")
+        elif all(re.match(r"^\s*\d+[.)]\s+", l) for l in b):
+            L.append("<ol>")
+            for l in b:
+                L.append("  <li>%s</li>" % inline_md(re.sub(r"^\s*\d+[.)]\s+", "", l), liens_pages, j, ou))
+            L.append("</ol>")
+        elif all(l.lstrip().startswith(">") for l in b):
+            t = " ".join(re.sub(r"^\s*>\s?", "", l) for l in b)
+            L.append("<blockquote><p>%s</p></blockquote>" % inline_md(t, liens_pages, j, ou))
+        else:
+            L.append("<p>%s</p>" % inline_md(" ".join(l.strip() for l in b), liens_pages, j, ou))
+    return L
+
+
+def premiere_phrase(pg, n=155):
+    for b in pg["blocs"]:
+        if re.match(r"^(#+|[-*]|\d+[.)])\s+", b[0]):
+            continue
+        t = texte_brut_md(" ".join(re.sub(r"^\s*>\s?", "", l).strip() for l in b))
+        if len(t) <= n:
+            return t
+        coupe = t[:n].rsplit(" ", 1)[0]
+        return coupe.rstrip(" ,;:") + "…"
+    return pg["titre"]
+
+
+EXTRA_CSS = """/* Mallette v2.1 (jour 2) : photo, « Mes pages », pages de contenu. Ajouté par construire.py. */
+.photo { display: inline-block; line-height: 0; border-radius: 50%; }
+.photo img {
+  width: 6.5rem; height: 6.5rem; object-fit: cover; border-radius: 50%;
+  border: 3px solid var(--accent); background: var(--ligne);
+}
+.pages-liste { list-style: none; margin: 0; padding: 0; }
+.pages-liste li {
+  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between;
+  gap: .15rem 1rem; padding: .7rem 0; border-top: 1px solid var(--ligne);
+}
+.pages-liste li:last-child { border-bottom: 1px solid var(--ligne); }
+.pages-liste a { font-weight: 600; }
+.pages-liste .date { color: var(--encre-3); font-size: .9rem; }
+.fil { margin: 0 0 2.2rem; font-size: .95rem; color: var(--encre-3); max-width: none; }
+.titre-article {
+  margin: 0; font-family: var(--police-titre); font-weight: var(--graisse-titre, 700);
+  font-stretch: var(--chasse-titre, 100%); font-size: clamp(2rem, 1.25rem + 3vw, 3.1rem);
+  line-height: 1.08; letter-spacing: -.02em; text-wrap: balance;
+}
+.signature { margin: 0; color: var(--encre-2); font-size: 1rem; }
+.texte h2 { margin: 2.2rem 0 .8rem; }
+.texte h3 { margin: 1.6rem 0 .6rem; font-family: var(--police-titre); font-size: 1.1rem; }
+.texte ul, .texte ol { margin: 0 0 .9em; padding-left: 1.3em; max-width: 38em; }
+.texte li { margin: .25em 0; }
+.texte blockquote { margin: 0 0 .9em; padding-left: 1rem; border-left: 3px solid var(--accent); color: var(--encre-2); }
+.encart {
+  display: flex; gap: 1rem; align-items: center; margin-top: 3rem; padding-top: 1.4rem;
+  border-top: 1px solid var(--ligne-forte);
+}
+.encart .photo img { width: 3.6rem; height: 3.6rem; border-width: 2px; }
+.encart p { margin: 0; }"""
+
+EXTRA_MOUVEMENT = """@media (prefers-reduced-motion: no-preference) {
+  .entete .photo { animation: m-pose .55s cubic-bezier(.2, .8, .2, 1) backwards; }
+  .titre-article { animation: m-monte .8s cubic-bezier(.16, .84, .24, 1) .08s backwards; }
+  .signature, .texte { animation: m-arrive .6s cubic-bezier(.2, .7, .2, 1) .5s backwards; }
+}"""
+
+
+# ---------------------------------------------------------------------------
 # Les faits : la source unique de la page, du JSON-LD et de moi.md
 # ---------------------------------------------------------------------------
 
@@ -668,6 +1069,13 @@ def faits(f, url_base):
         lignes.append((f["employeur"]["libelle"], f["employeur"]))
     lignes.append(("Ville", f["ville"]))
     lignes.append(("Domaines de compétence", f["domaines"]))
+    photo = f.get("photo")
+    photo_url = None
+    if photo:
+        photo_url = photo["url"] or base + photo["nom_sortie"]
+    pages = []
+    for pg in f.get("pages") or []:
+        pages.append(dict(pg, url=base + pg["slug"] + ".html", url_md=base + pg["slug"] + ".md"))
     return {
         "url": base,
         "id": base + "#moi",
@@ -675,6 +1083,8 @@ def faits(f, url_base):
         "id_liee": base + "#projet",
         "lignes": lignes,
         **f,
+        "photo_url": photo_url,
+        "pages": pages,
     }
 
 
@@ -689,6 +1099,8 @@ def jsonld(F):
         "description": F["phrase_identite"],
         "jobTitle": F["metier"],
     }
+    if F.get("photo_url"):
+        p["image"] = F["photo_url"]
     if F["employeur"]:
         org = {"@type": "Organization", "@id": F["id_employeur"], "name": F["employeur"]["nom"]}
         if F["employeur"]["url"]:
@@ -785,6 +1197,8 @@ def page_html(F, css, police_titre):
     w('<meta name="description" content="%s">' % e(F["phrase_identite"]))
     if F["fictif"]:
         w('<meta name="robots" content="noindex">')
+    if F.get("verification_google"):
+        w('<meta name="google-site-verification" content="%s">' % e(F["verification_google"]))
     w('<link rel="canonical" href="%s">' % e(F["url"]))
     w('<link rel="alternate" type="text/markdown" href="moi.md" title="Cette page en Markdown">')
     w('<link rel="describedby" href="llms.txt" title="Sommaire pour les robots IA">')
@@ -793,7 +1207,7 @@ def page_html(F, css, police_titre):
     w('<meta property="og:description" content="%s">' % e(F["phrase_identite"]))
     w('<meta property="og:url" content="%s">' % e(F["url"]))
     w('<meta property="og:locale" content="fr_FR">')
-    w('<meta name="generator" content="Mallette page d\'entité (outils/construire.py)">')
+    w('<meta name="generator" content="Mallette page d\'entité %s (outils/construire.py)">' % VERSION)
     if police_titre:
         w('<link rel="preload" href="polices/%s" as="font" type="font/woff2" crossorigin>' % e(police_titre))
     w("")
@@ -814,7 +1228,11 @@ def page_html(F, css, police_titre):
           "cette page montre le résultat attendu du TP.</p>" % e(phrase_fictif(F)))
     w('<main class="page" id="contenu">')
     w('  <header class="entete">')
-    w('    <span class="monogramme" aria-hidden="true">%s</span>' % e(initiales(F["nom"])))
+    if F.get("photo_url"):
+        w('    <a class="photo" href="%s"><img src="%s" alt="%s" width="208" height="208"></a>' % (
+            e(F["photo_url"]), e(F["photo"]["nom_sortie"] or F["photo_url"]), e(F["nom"])))
+    else:
+        w('    <span class="monogramme" aria-hidden="true">%s</span>' % e(initiales(F["nom"])))
     w('    <h1 class="nom"><span class="nom-texte">%s</span></h1>' % e(F["nom"]))
     w('    <span class="trait" aria-hidden="true"></span>')
     w('    <p class="phrase">%s</p>' % e(F["phrase_identite"]))
@@ -858,6 +1276,17 @@ def page_html(F, css, police_titre):
         w("      <p>%s%s</p>" % (nom, (" : %s" % e(el["description"])) if el["description"] else ""))
         w('      <p>Mon rôle : <span class="relation">%s</span>.</p>' % e(el["relation"]))
         w("    </section>")
+    if F.get("pages"):
+        w("")
+        w('    <section class="mes-pages" aria-labelledby="t-pages">')
+        w('      <h2 id="t-pages">Mes pages</h2>')
+        w('      <ul class="pages-liste">')
+        for pg in F["pages"]:
+            date = (' <span class="date"><time datetime="%s">%s</time></span>' % (pg["date"], date_fr(pg["date"]))
+                    if pg["date"] else "")
+            w('        <li><a href="%s.html">%s</a>%s</li>' % (e(pg["slug"]), e(pg["titre"]), date))
+        w("      </ul>")
+        w("    </section>")
     if F["profils"]:
         w("")
         w('    <section aria-labelledby="t-ailleurs">')
@@ -893,6 +1322,9 @@ def moi_md(F):
     w("")
     w("Page officielle : %s" % F["url"])
     w("")
+    if F.get("photo_url"):
+        w("Photo : %s" % F["photo_url"])
+        w("")
     if F["fictif"]:
         w("Exemple fictif : %s." % phrase_fictif(F))
         w("")
@@ -928,6 +1360,13 @@ def moi_md(F):
         w("- Mon rôle : %s" % el["relation"])
         if el["url"]:
             w("- Adresse : %s" % el["url"])
+    if F.get("pages"):
+        w("")
+        w("## Mes pages")
+        w("")
+        for pg in F["pages"]:
+            w("- %s%s : %s (en Markdown : %s)" % (pg["titre"], (", %s" % date_fr(pg["date"])) if pg["date"] else "",
+                                                 pg["url"], pg["url_md"]))
     if F["profils"]:
         w("")
         w("## Me retrouver ailleurs")
@@ -961,12 +1400,144 @@ def llms_txt(F):
     w("")
     w("- [Profil en Markdown](%smoi.md): tous les faits de la page, en texte brut" % F["url"])
     w("- [Page d'accueil](%s): la page de référence, avec ses données structurées schema.org" % F["url"])
+    for pg in F.get("pages") or []:
+        w("- [%s](%s): page de contenu signée par %s%s (en Markdown : %s)" % (
+            pg["titre"], pg["url"], F["nom"], (", publiée le %s" % date_fr(pg["date"])) if pg["date"] else "", pg["url_md"]))
     if F["profils"]:
         w("")
         w("## Optional")
         w("")
         for p in F["profils"]:
             w("- [%s](%s): profil de %s sur %s" % (p["nom"], p["url"], F["nom"], nom_plateforme(p["url"])))
+    return "\n".join(L) + "\n"
+
+
+def jsonld_article(F, pg):
+    """Le JSON-LD d'une page de contenu : un Article, signé par l'entité de la page d'accueil (#moi)."""
+    a = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "@id": pg["url"] + "#article",
+        "url": pg["url"],
+        "mainEntityOfPage": pg["url"],
+        "headline": pg["titre"],
+        "description": premiere_phrase(pg),
+        "inLanguage": "fr",
+        "author": {"@type": "Person", "@id": F["id"], "name": F["nom"], "url": F["url"]},
+    }
+    if pg["date"]:
+        a["datePublished"] = pg["date"]
+    if F.get("photo_url"):
+        a["author"]["image"] = F["photo_url"]
+    return a
+
+
+def page_article_html(F, pg, liens_pages, css, police_titre, j):
+    L = []
+    w = L.append
+    ou = "pages[%d]" % pg["rang"]
+    bloc = json.dumps(jsonld_article(F, pg), ensure_ascii=False, indent=2).replace("</", "<\\/")
+    corps = html_blocs(pg["blocs"], liens_pages, j, ou)
+    w("<!doctype html>")
+    w('<html lang="fr">')
+    w("<head>")
+    w('<meta charset="utf-8">')
+    w('<meta name="viewport" content="width=device-width, initial-scale=1">')
+    w("<title>%s – %s</title>" % (e(pg["titre"]), e(F["nom"])))
+    w('<meta name="description" content="%s">' % e(premiere_phrase(pg)))
+    w('<meta name="author" content="%s">' % e(F["nom"]))
+    if F["fictif"]:
+        w('<meta name="robots" content="noindex">')
+    w('<link rel="canonical" href="%s">' % e(pg["url"]))
+    w('<link rel="alternate" type="text/markdown" href="%s.md" title="Cette page en Markdown">' % e(pg["slug"]))
+    w('<meta property="og:type" content="article">')
+    w('<meta property="og:title" content="%s">' % e(pg["titre"]))
+    w('<meta property="og:description" content="%s">' % e(premiere_phrase(pg)))
+    w('<meta property="og:url" content="%s">' % e(pg["url"]))
+    w('<meta property="og:locale" content="fr_FR">')
+    w('<meta name="generator" content="Mallette page d\'entité %s (outils/construire.py)">' % VERSION)
+    if police_titre:
+        w('<link rel="preload" href="polices/%s" as="font" type="font/woff2" crossorigin>' % e(police_titre))
+    w("")
+    w("<!-- Données structurées de cette page : un Article signé par l'entité")
+    w("     de la page d'accueil (même @id). Générées depuis %s et fiche.json. -->" % e(pg["fichier"]))
+    w('<script type="application/ld+json">')
+    w(bloc)
+    w("</script>")
+    w("")
+    w("<style>")
+    w(css)
+    w("</style>")
+    w("</head>")
+    w("<body>")
+    if F["fictif"]:
+        w('<p class="bandeau" role="note"><strong>Exemple fictif.</strong> %s : '
+          "cette page montre le résultat attendu du TP.</p>" % e(phrase_fictif(F)))
+    w('<main class="page article" id="contenu">')
+    w('  <nav class="fil" aria-label="Fil d\'Ariane"><a href="%s">%s</a> › %s</nav>' % (
+        e(F["url"]), e(F["nom"]), e(pg["titre"])))
+    w('  <header class="entete">')
+    w('    <h1 class="titre-article">%s</h1>' % e(pg["titre"]))
+    w('    <span class="trait" aria-hidden="true"></span>')
+    date = (', le <time datetime="%s">%s</time>' % (pg["date"], date_fr(pg["date"]))) if pg["date"] else ""
+    w('    <p class="signature">Par <a href="%s" rel="author">%s</a>, %s%s</p>' % (
+        e(F["url"]), e(F["nom"]), e(F["metier"][:1].lower() + F["metier"][1:]), date))
+    w("  </header>")
+    w("")
+    w('  <article class="texte">')
+    for ligne in corps:
+        w("    " + ligne)
+    w("  </article>")
+    w("")
+    w('  <aside class="encart" aria-label="Qui écrit cette page">')
+    if F.get("photo_url"):
+        w('    <a class="photo" href="%s"><img src="%s" alt="%s" width="116" height="116"></a>' % (
+            e(F["url"]), e(F["photo"]["nom_sortie"] or F["photo_url"]), e(F["nom"])))
+    else:
+        w('    <span class="monogramme" aria-hidden="true">%s</span>' % e(initiales(F["nom"])))
+    w('    <p>%s <a href="%s">Voir la page de %s</a>.</p>' % (e(F["phrase_identite"]), e(F["url"]), e(F["nom"])))
+    w("  </aside>")
+    autres = [x for x in F["pages"] if x["slug"] != pg["slug"]]
+    if autres:
+        w("")
+        w('  <section class="mes-pages" aria-labelledby="t-autres">')
+        w('    <h2 id="t-autres">Mes autres pages</h2>')
+        w('    <ul class="pages-liste">')
+        for x in autres:
+            w('      <li><a href="%s.html">%s</a></li>' % (e(x["slug"]), e(x["titre"])))
+        w("    </ul>")
+        w("  </section>")
+    w("</main>")
+    w("")
+    w('<footer class="pied">')
+    w('  <p>Adresse de cette page : <a href="%s">%s</a></p>' % (e(pg["url"]), e(pg["url"])))
+    w('  <p>Pour les machines : cette page existe aussi en texte brut, <a href="%s.md">%s.md</a>. '
+      "Ses données structurées schema.org la relient à la page de %s.</p>" % (e(pg["slug"]), e(pg["slug"]), e(F["nom"])))
+    w('  <p class="credit">Page construite depuis %s (et fiche.json) pendant le module SEO &amp; GEO '
+      "du MBA MDIA, De Vinci Executive Education, novembre 2026.</p>" % e(pg["fichier"]))
+    w("</footer>")
+    w("</body>")
+    w("</html>")
+    return "\n".join(L) + "\n"
+
+
+def article_md(F, pg, liens_abs):
+    """Le jumeau Markdown d'une page de contenu : le même texte, avec qui l'a écrit."""
+    L = ["# %s" % pg["titre"], ""]
+    L.append("> Par %s (%s)%s." % (F["nom"], F["url"], (", le %s" % date_fr(pg["date"])) if pg["date"] else ""))
+    L.append("")
+    for b in pg["blocs"]:
+        for l in b:
+            def lien(m):
+                cible = m.group(2).strip()
+                cle = cible.lower().lstrip("./")
+                cle2 = cle if cle.startswith("pages/") else "pages/" + cle
+                return "[%s](%s)" % (m.group(1), liens_abs.get(cle) or liens_abs.get(cle2) or cible)
+            L.append(re.sub(r"\[([^\]\n]+)\]\(\s*([^)\s]+)\s*\)", lien, l))
+        L.append("")
+    L.append("---")
+    L.append("")
+    L.append("Ce fichier est le jumeau Markdown de %s. Écrit par %s : %s" % (pg["url"], F["nom"], F["phrase_identite"]))
     return "\n".join(L) + "\n"
 
 
@@ -981,13 +1552,16 @@ def robots_txt(F):
 
 
 def sitemap_xml(F):
+    lignes = ["  <url><loc>%s</loc></url>" % html.escape(F["url"])]
+    for pg in F.get("pages") or []:
+        lm = "<lastmod>%s</lastmod>" % pg["date"] if pg["date"] else ""
+        lignes.append("  <url><loc>%s</loc>%s</url>" % (html.escape(pg["url"]), lm))
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-            "  <url><loc>%s</loc></url>\n"
-            "</urlset>\n" % html.escape(F["url"]))
+            + "\n".join(lignes) + "\n</urlset>\n")
 
 
-def construire(f, url_base, sortie, dossier_themes):
+def construire(f, url_base, sortie, dossier_themes, j=None):
     base, css_theme, mouvement, fond, polices = lire_theme(dossier_themes, f["theme"])
     c = couleurs(f["couleur_accent"], fond)
     variables = (":root {\n  --accent: %s;\n  --accent-texte: %s;\n  --sur-accent: %s;\n}\n"
@@ -998,6 +1572,10 @@ def construire(f, url_base, sortie, dossier_themes):
     ]
     if f["animations"]:
         morceaux.append(mouvement.strip())
+    if f.get("photo") or f.get("pages"):
+        morceaux.append(EXTRA_CSS)
+        if f["animations"]:
+            morceaux.append(EXTRA_MOUVEMENT)
     morceaux.append("/* La couleur d'accent de fiche.json (ajustée si besoin pour rester lisible). */\n" + variables.strip())
     css = "\n\n".join(morceaux)
 
@@ -1009,6 +1587,19 @@ def construire(f, url_base, sortie, dossier_themes):
     (sortie / "robots.txt").write_text(robots_txt(F), encoding="utf-8")
     (sortie / "sitemap.xml").write_text(sitemap_xml(F), encoding="utf-8")
     (sortie / ".nojekyll").write_text("", encoding="utf-8")
+
+    if F.get("photo") and F["photo"]["fichier"]:
+        shutil.copyfile(F["photo"]["fichier"], sortie / F["photo"]["nom_sortie"])
+    liens_rel, liens_abs = {}, {}
+    for pg in F["pages"]:
+        for cle in (pg["cle"], pg["cle"].split("/")[-1]):
+            liens_rel[cle] = pg["slug"] + ".html"
+            liens_abs[cle] = pg["url"]
+    for rang, pg in enumerate(F["pages"]):
+        pg["rang"] = pg.get("rang_fiche", rang)
+        (sortie / (pg["slug"] + ".html")).write_text(
+            page_article_html(F, pg, liens_rel, css, polices[0] if polices else None, j), encoding="utf-8")
+        (sortie / (pg["slug"] + ".md")).write_text(article_md(F, pg, liens_abs), encoding="utf-8")
 
     dossier_polices = sortie / "polices"
     if dossier_polices.exists():
@@ -1142,10 +1733,12 @@ def main(argv=None):
     for chemin_c, t in conseils_lecture:
         j.conseil(chemin_c, t)
     f = valider(donnees, j)
-    if f is None:
+    extras = lire_extras(donnees, j, chemin.parent, f)
+    if f is None or j.erreurs:
         afficher_erreurs(j)
         afficher_conseils(j)
         return 1
+    f.update(extras)
 
     url_base = a.url_base
     origine = "option --url-base"
@@ -1168,7 +1761,7 @@ def main(argv=None):
         print("L'adresse « %s » n'est pas valide (exemple : https://marie.github.io/)." % url_base)
         return 2
 
-    F, c = construire(f, url_base, sortie, Path(a.themes))
+    F, c = construire(f, url_base, sortie, Path(a.themes), j)
 
     if c["accent_texte"] != f["couleur_accent"]:
         j.conseil("couleur_accent", "%s n'a qu'un contraste de %.1f:1 sur le thème %s : trop faible pour du texte. "
@@ -1179,20 +1772,34 @@ def main(argv=None):
         affiche = sortie.resolve().relative_to(Path.cwd().resolve())
     except ValueError:
         affiche = sortie
-    print("Page construite dans %s/ à partir de %s." % (affiche, nom_fichier))
+    print("Page construite dans %s/ à partir de %s (mallette %s)." % (affiche, nom_fichier, VERSION))
     print()
     print("  Adresse       : %s   (d'après : %s)" % (F["url"], origine))
     print("  Identifiant   : %s" % F["id"])
     print("  Thème         : %s, accent %s, animations %s" % (f["theme"], f["couleur_accent"], "oui" if f["animations"] else "non"))
     print("  Contraste     : liens %.1f:1 sur le fond (AA demande 4,5:1)" % c["c_texte"])
     print("  Fichiers      : index.html, moi.md, llms.txt, robots.txt, sitemap.xml, .nojekyll, polices/")
+    if F.get("photo_url"):
+        print("  Photo         : %s" % F["photo_url"])
+    if F.get("verification_google"):
+        print("  Search Console: balise de vérification posée (google-site-verification)")
+    for pg in F["pages"]:
+        print("  Page          : %s  (%s, %d mots)" % (pg["url"], pg["fichier"], pg["nb_mots"]))
     conseils_md = afficher_conseils(j)
     print()
     print("Étape suivante : python3 outils/verifier.py%s" % ("" if sortie.name == "_site" else " %s" % affiche))
     annotation("notice", "Page construite", "Adresse : %s" % F["url"])
-    resume_actions("## Page construite\n\n- **Adresse** : %s\n- **Thème** : %s, accent `%s`, animations %s\n"
-                   "- **Contraste des liens** : %.1f:1 (AA demande 4,5:1)\n%s"
-                   % (F["url"], f["theme"], f["couleur_accent"], "oui" if f["animations"] else "non", c["c_texte"],
+    extra_md = ""
+    if F.get("photo_url"):
+        extra_md += "- **Photo** : %s\n" % F["photo_url"]
+    if F.get("verification_google"):
+        extra_md += "- **Search Console** : balise de vérification posée ; retournez dans Search Console et cliquez sur Valider\n"
+    for pg in F["pages"]:
+        extra_md += "- **Page** : [%s](%s)\n" % (pg["titre"], pg["url"])
+    resume_actions("## Page construite (mallette %s)\n\n- **Adresse** : %s\n- **Thème** : %s, accent `%s`, animations %s\n"
+                   "- **Contraste des liens** : %.1f:1 (AA demande 4,5:1)\n%s%s"
+                   % (VERSION, F["url"], f["theme"], f["couleur_accent"], "oui" if f["animations"] else "non", c["c_texte"],
+                      extra_md,
                       ("\n### Conseils (rien de bloquant)\n\n" + "\n".join(conseils_md) + "\n") if conseils_md else ""))
     return 0
 

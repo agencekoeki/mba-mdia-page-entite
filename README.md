@@ -6,6 +6,8 @@ Mallette du TP « Votre page d'entité », module SEO & GEO du MBA Marketing Dig
 
 **Ce que vous allez obtenir** : une page pro publique à votre nom, `https://votre-identifiant.github.io/`, qui dit qui vous êtes aux humains et aux machines (Google, Gemini, ChatGPT…). Vous remplissez **un seul fichier**, votre fiche ; GitHub fabrique la page, son code pour les machines, sa version texte et son sommaire pour les robots IA. Tout dit la même chose, partout.
 
+**Jour 2 (mercredi)** : la mallette passe en 2.1 et sait publier vos pages de contenu, afficher votre photo et entrer dans Google : [section Jour 2](#jour-2--mettre-à-jour-la-mallette-ajouter-une-page-une-photo-entrer-dans-google).
+
 **Durée** : environ une heure, la première fois. **Matériel** : un ordinateur, votre adresse e-mail, votre compte Gemini (celui de l'école). **Aucun code à écrire.**
 
 > **L'idée unique du module : les entités nommées sont le nouveau NAP.** En SEO local, le NAP (Name, Address, Phone) doit être identique partout, sinon Google hésite entre deux fiches. Pour vous, c'est pareil : même nom, même métier, même employeur, même ville, sur votre page, dans son code, sur LinkedIn. Cette mallette le garantit par construction : une seule source, tout le reste en découle.
@@ -258,9 +260,125 @@ Chaque étape illustre une seule idée : **les entités nommées sont le nouveau
 
 ---
 
+## Jour 2 · Mettre à jour la mallette, ajouter une page, une photo, entrer dans Google
+
+Mercredi, votre page d'entité devient le centre d'un petit site : des pages de contenu signées par vous, reliées à elle. Quatre gestes, dans l'ordre. Le premier est obligatoire : sans lui, les trois autres sont ignorés.
+
+| Geste | Ce que vous faites | Durée |
+|---|---|---|
+| A | Mettre à jour la mallette (un seul fichier à remplacer) | 5 min |
+| B | Ajouter une page de contenu | 15 min |
+| C | Ajouter votre photo (facultatif) | 5 min |
+| D | Faire entrer votre site dans Google (Search Console) | 15 min |
+
+### Geste A · Mettre à jour la mallette (5 min)
+
+Votre dépôt est une copie de la mallette du lundi : il ne reçoit pas les nouveautés tout seul. On remplace un seul fichier, `outils/construire.py`.
+
+1. Ouvrez cette adresse : **https://raw.githubusercontent.com/agencekoeki/mba-mdia-page-entite/main/outils/construire.py**. C'est du code brut, en texte.
+2. Sélectionnez tout (**Ctrl + A**, ou **Cmd + A** sur Mac), copiez (**Ctrl + C**).
+3. Dans **votre** dépôt, ouvrez le dossier **outils**, puis le fichier **construire.py**, puis le **crayon** (*Edit this file*).
+4. Sélectionnez tout (**Ctrl + A**), supprimez, collez (**Ctrl + V**).
+5. **Commit changes…**, puis **Commit changes**.
+6. Onglet **Actions** : attendez la coche verte, cliquez sur la ligne. Le résumé doit dire **« Page construite (mallette 2.1) »**.
+
+**C'est bon quand** : le résumé dit « mallette 2.1 ». Votre page n'a pas changé : c'est normal, votre fiche est la même.
+
+> Si l'Action dit plus tard « champ inconnu, ignoré : pages » (ou photo), c'est que ce geste A n'est pas fait.
+
+### Geste B · Ajouter une page de contenu (15 min)
+
+Une page de contenu prouve ce que vous savez faire : un cas réel, une date, un résultat, un lien pour le voir. Elle est écrite en **Markdown** (du texte presque normal) dans le dossier `pages/` ; la mallette en fait une page web signée par vous, avec son code pour les machines (un `Article` dont l'auteur est votre entité, `…/#moi`), et l'ajoute à votre page d'accueil sous « Mes pages ».
+
+1. Dans votre dépôt : **Add file** (en haut, à côté du bouton vert **Code**) → **Create new file**.
+2. Dans le champ du nom, tapez `pages/` puis le nom de votre page, en minuscules, avec des tirets et sans accents, par exemple `pages/relancer-la-newsletter.md`. Le `/` crée le dossier tout seul.
+3. Collez votre texte, sur ce modèle :
+
+   ```markdown
+   # Le titre : la question à laquelle la page répond
+
+   Date : 2026-11-04
+
+   Prénom Nom a … (première phrase : la réponse, avec votre nom).
+
+   ## Ce que j'ai fait
+
+   - Première action, datée.
+   - Deuxième action.
+
+   ## Le résultat, et où le voir
+
+   Le chiffre vrai, et [le lien qui le montre](https://…).
+   ```
+
+   Ce que la mallette comprend : `#` le titre (une seule fois, en première ligne), `Date :` (facultative), `##` et `###` les sous-titres, `-` les listes, `[texte](adresse)` les liens, `**gras**`, `>` une citation. Une ligne vide entre deux paragraphes.
+4. **Commit changes…**, puis **Commit changes**. Attention : ce commit ne publie rien (seule la fiche déclenche la publication).
+5. Ouvrez **fiche.json** (crayon) et ajoutez une ligne, par exemple juste après `"identifiant_github"` (virgule à la fin de la ligne précédente) :
+   ```json
+   "pages": ["pages/relancer-la-newsletter.md"],
+   ```
+   Plusieurs pages : `"pages": ["pages/premiere.md", "pages/deuxieme.md"],`
+6. **Commit changes** : l'Action construit votre page. Elle sera à l'adresse `https://identifiant.github.io/relancer-la-newsletter.html`, avec sa version texte en `.md`.
+
+**C'est bon quand** : votre page d'accueil a une section « Mes pages » avec le titre en lien, et la nouvelle page a un lien retour à votre nom.
+
+> **Relier vos pages entre elles** : dans le texte d'une page, un lien vers une autre se note avec le nom de son fichier, `[ma page sur la newsletter](pages/relancer-la-newsletter.md)` ; la mallette le transforme en vrai lien.
+>
+> **Modifier une page plus tard** : corrigez le fichier `.md` (crayon, Commit), puis relancez la publication : **Actions → Publier ma page → Run workflow**. Sans ça, l'ancienne version reste en ligne.
+>
+> **Vous recollez une fiche écrite par le Gem ?** Il ne connaît pas les champs du jour 2 : recopiez vos lignes `"pages"`, `"photo"` et `"verification_google"` dans la nouvelle fiche avant de l'enregistrer.
+>
+> **Les conseils de l'Action** vous aident à écrire : votre nom absent du texte, un `[À SOURCER]` oublié, une page trop courte, un lien sans `https://`. Rien de bloquant, mais lisez-les.
+
+Pour faire écrire le brouillon par Gemini, à partir de **vos** preuves (Gem « SEO · SAVOIR ou PENSER ») :
+
+```text
+Écris une page en Markdown pour ma mallette, à partir de MES PREUVES seulement : [vos preuves : ce que j'ai fait, quand, quel résultat, où le voir].
+Première ligne : # puis le titre, sous forme de question. Puis « Date : AAAA-MM-JJ ».
+Première phrase : la réponse, avec mon nom, [Prénom Nom]. Un paragraphe, une idée ; ## pour les sous-titres.
+Écris [À SOURCER] là où une preuve manque. N'invente aucun chiffre. Puis liste ce que tu as supposé.
+```
+
+### Geste C · Ajouter votre photo (facultatif, 5 min)
+
+Une photo pro, que vous acceptez de voir en public. Rien d'obligatoire : sans photo, la page garde ses initiales.
+
+1. Préparez un fichier **JPG, PNG ou WebP**, de **moins de 2 Mo**, plutôt carré (les photos d'iPhone en HEIC ne marchent pas : faites une capture d'écran, ou exportez en JPG).
+2. Dans votre dépôt : **Add file → Upload files**, glissez la photo, **Commit changes**. Elle arrive à la racine du dépôt, à côté de `fiche.json`.
+3. Dans **fiche.json**, ajoutez la ligne avec le nom **exact** du fichier (majuscules et extension comprises) :
+   ```json
+   "photo": "photo.jpg",
+   ```
+4. **Commit changes**, coche verte : la photo s'affiche en haut de la page et sur vos pages de contenu. Dans le code, elle devient la propriété `image` de votre entité.
+
+### Geste D · Faire entrer votre site dans Google (15 min)
+
+Une page neuve n'existe pas pour Google tant qu'il ne l'a pas trouvée : aucun lien n'y mène encore. **Google Search Console** permet de lui dire « mon site existe, voici ses pages ». Il vous faut un compte Google (celui de l'école ou le vôtre).
+
+1. Ouvrez **search.google.com/search-console** et connectez-vous.
+2. **Ajouter une propriété** (dans le menu des propriétés, en haut à gauche). Choisissez **Préfixe de l'URL** (pas « Domaine »), tapez `https://identifiant.github.io/`, puis **Continuer**.
+3. Parmi les méthodes de validation, ouvrez **Balise HTML**, puis **Copier** la balise `<meta name="google-site-verification" content="…">`.
+4. Dans **fiche.json**, ajoutez une ligne et collez-y la balise, ou seulement le code entre les guillemets après `content=` :
+   ```json
+   "verification_google": "le-code-copié-dans-search-console",
+   ```
+   **Commit changes**, puis attendez la **coche verte** de l'Action (une à deux minutes).
+5. Revenez dans Search Console et cliquez sur **Valider**. « Propriété validée » : c'est gagné. Ne retirez jamais ce champ : Google revérifie de temps en temps.
+6. Menu **Sitemaps** : dans « Ajouter un sitemap », tapez `sitemap.xml`, puis **Envoyer**. Le sitemap liste votre page d'accueil et vos pages de contenu.
+7. **Inspection de l'URL** (la barre tout en haut) : collez l'adresse de votre page d'accueil, puis **Demander une indexation**. Recommencez avec chaque page de contenu.
+
+**C'est bon quand** : la propriété est validée, le sitemap est envoyé, l'indexation est demandée.
+
+> **Soyons honnêtes.** Demander une indexation, c'est demander, pas exiger : Google peut mettre quelques jours, parfois plus, et ne promet rien. En attendant, `site:identifiant.github.io` dans Google peut rester vide, et Gemini peut ne pas « voir » votre page s'il cherche par Google. Donner l'adresse exacte à Gemini marche souvent mieux, mais il n'ouvre pas toujours une page neuve : s'il répond sans l'avoir lue, il devine. C'est une photo, pas une mesure.
+>
+> Les noms de boutons de Search Console sont donnés tels qu'ils s'affichent en français à notre connaissance ; s'ils diffèrent un peu chez vous, cherchez le plus proche.
+
+---
+
 ## Après la formation
 
 - Pour modifier votre page : modifiez **fiche.json** (crayon, Commit changes). Jamais `index.html` : il est refabriqué à chaque fois.
+- Pour modifier une page de contenu : modifiez son fichier dans `pages/`, puis **Actions → Publier ma page → Run workflow**.
 - Pour supprimer la page et le dépôt : **Settings → General → Danger Zone → Delete this repository**.
 
 ---
@@ -272,13 +390,14 @@ Chaque étape illustre une seule idée : **les entités nommées sont le nouveau
 | `fiche.json` | **votre fiche d'identité, la seule source de la page** | oui, c'est le seul |
 | `fiche.md` | l'aide de chaque champ, avec un exemple | à lire |
 | `fiche.exemple.json` | une fiche complète, fictive (Marie Exemple, Lumen) | à lire |
+| `pages/` | vos pages de contenu, en Markdown (jour 2 ; le dossier se crée avec la première page) | oui |
 | `gems/` | les instructions des 4 Gems Gemini | à copier dans Gemini |
 | `docs/` | ce guide et la page des Gems, en Markdown et en PDF | à lire |
-| `outils/construire.py` | fabrique la page, `moi.md`, `llms.txt`, `robots.txt`, `sitemap.xml` depuis la fiche | non |
+| `outils/construire.py` | fabrique la page, `moi.md`, `llms.txt`, `robots.txt`, `sitemap.xml` (et, en 2.1, vos pages de contenu et votre photo) depuis la fiche | une fois, au geste A du jour 2 |
 | `outils/verifier.py` | vérifie que chaque valeur du code se voit sur la page | non |
 | `themes/` | les 3 thèmes (clair, sombre, editorial), le mouvement, les polices | non |
 | `.github/workflows/publier.yml` | l'Action : construire, vérifier, publier, à chaque modification de la fiche | non |
-| `exemple/` | le résultat, construit depuis `fiche.exemple.json` | à regarder |
+| `exemple/` | le résultat, construit depuis `fiche.exemple.json`, avec une page de contenu et une photo dessinée (sources dans `exemple/sources/`) | à regarder |
 | `index.html` | page d'attente, remplacée par la vôtre dès la première publication | non |
 
 Les polices (Instrument Sans, Bricolage Grotesque, Newsreader) sont sous licence SIL Open Font License ; leurs licences sont dans `themes/polices/`.

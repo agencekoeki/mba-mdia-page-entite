@@ -4,6 +4,8 @@
 
 Page officielle : https://agencekoeki.github.io/mba-mdia-page-entite/exemple/
 
+Photo : https://agencekoeki.github.io/mba-mdia-page-entite/exemple/marie-exemple.png
+
 Exemple fictif : Marie Exemple, Lumen et La Fournée n'existent pas.
 
 ## En bref
@@ -26,6 +28,10 @@ Après une licence de communication, je suis le MBA Marketing Digital et Intelli
 - Nom : La Fournée
 - Description : une lettre mensuelle sur le marketing des artisans boulangers
 - Mon rôle : autrice
+
+## Mes pages
+
+- Relancer une newsletter en six semaines : le cas de La Fournée, 4 novembre 2026 : https://agencekoeki.github.io/mba-mdia-page-entite/exemple/relancer-une-newsletter.html (en Markdown : https://agencekoeki.github.io/mba-mdia-page-entite/exemple/relancer-une-newsletter.md)
 
 ## Me retrouver ailleurs
 

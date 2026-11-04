@@ -10,6 +10,7 @@ Exemple fictif : Marie Exemple, Lumen et La Fournée n'existent pas.
 
 - [Profil en Markdown](https://agencekoeki.github.io/mba-mdia-page-entite/exemple/moi.md): tous les faits de la page, en texte brut
 - [Page d'accueil](https://agencekoeki.github.io/mba-mdia-page-entite/exemple/): la page de référence, avec ses données structurées schema.org
+- [Relancer une newsletter en six semaines : le cas de La Fournée](https://agencekoeki.github.io/mba-mdia-page-entite/exemple/relancer-une-newsletter.html): page de contenu signée par Marie Exemple, publiée le 4 novembre 2026 (en Markdown : https://agencekoeki.github.io/mba-mdia-page-entite/exemple/relancer-une-newsletter.md)
 
 ## Optional
 
